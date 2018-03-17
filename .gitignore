@@ -1,0 +1,14 @@
+# Python
+*.pyc
+
+# IDE
+**/.vscode
+**/.idea
+
+# Data
+*.csv
+*.log
+*.db
+
+# Test staff
+**/test_arch
