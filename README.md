@@ -2,16 +2,16 @@
 
 Python scripts to servise large DBLib. DataBase based on CERN library converted to SQLite3 and contains about 7500 components.
 
-### Light demonstration
+### A little demo
 
-![Light demonstration](demo.gif?raw=true "demo.gif")
+![A little demo](demo.gif?raw=true "demo.gif")
 
 ### Launch without keys (completed config.py)
 
 ```
-path\to\create_component.py path\to\altvault.db 12345678 stm32f100c
-^                           ^                   ^        ^
-script                      data base           apikey   prefill search
+path\to\create_component.py
+^
+script
 ```
 
 ### Launch with keys (replace config.py)
