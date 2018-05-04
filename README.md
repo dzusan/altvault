@@ -2,6 +2,9 @@
 
 Python scripts to servise large DBLib. DataBase based on CERN library converted to SQLite3 and contains about 7500 components.
 
+**Copy `config.py.example` to `config.py` for proper operation! And only then
+change settings in file or replace them by command line.**
+
 ### A little demo
 
 ![A little demo](demo.gif?raw=true "demo.gif")
