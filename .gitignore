@@ -12,3 +12,6 @@
 
 # Test staff
 **/test_arch
+
+# Confidencial
+config.py
