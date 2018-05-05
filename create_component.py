@@ -1,4 +1,5 @@
 import sqlite3
+import pyodbc
 import sys
 import colorama
 import win32com.client as win
@@ -7,6 +8,7 @@ import win32com.client as win
 import config
 import octopart
 import filler
+import DBstructure
 
 def fillinput(prompt, default=""):
     win.Dispatch("WScript.Shell").SendKeys(default)
@@ -46,13 +48,10 @@ def search_dialog(keyword):
         return (False, choice_word)
 
 def add_rec(conn, cursor, info):
-    # Query for obtain field names
-    cursor.execute('SELECT * FROM components WHERE `Part Number` LIKE \'ADS7852Y\'')
-
     # Create dict from coloumns
     field = {}
-    for col in cursor.description:
-        field[col[0].replace(' ', '_')] = None
+    for col in DBstructure.colNames:
+        field[col.replace(' ', '_')] = None
 
     # Fill the fields
     filler.spec(field, info)
@@ -61,9 +60,6 @@ def add_rec(conn, cursor, info):
     filler.footprint(field, conn, cursor)
     # Choose the datasheet (and preferable to call filler.subclass() before it to fill the 'Table')
     filler.datasheet(field, info)
-
-    # Generated automatically from db_prepare.py
-    insert_skeleton = 'INSERT INTO components (`Part Number`, `Library Ref`, `Library Path`, `Comment`, `Component Kind`, `Component Type`, `Footprint`, `Pin Count`, `Case`, `Footprint Path`, `Footprint Ref`, `PackageDescription`, `Device`, `Mounted`, `Socket`, `SMD`, `Status`, `Color`, `Part Description`, `Manufacturer`, `Manufacturer Part Number`, `ComponentHeight`, `Manufacturer1 Example`, `Manufacturer1 Part Number`, `Manufacturer1 ComponentHeight`, `HelpURL`, `ComponentLink1URL`, `ComponentLink1Description`, `ComponentLink2URL`, `ComponentLink2Description`, `Author`, `CreateDate`, `LatestRevisionDate`, `Table`, `Sim Model Name`, `Sim File`, `Sim SubKind`, `Sim Netlist`, `Sim Spice Prefix`, `Sim Port Map`, `Resistanse`, `Value`, `TC`, `Power`, `Tolerance`, `Voltage`) VALUES (:Part_Number, :Library_Ref, :Library_Path, :Comment, :Component_Kind, :Component_Type, :Footprint, :Pin_Count, :Case, :Footprint_Path, :Footprint_Ref, :PackageDescription, :Device, :Mounted, :Socket, :SMD, :Status, :Color, :Part_Description, :Manufacturer, :Manufacturer_Part_Number, :ComponentHeight, :Manufacturer1_Example, :Manufacturer1_Part_Number, :Manufacturer1_ComponentHeight, :HelpURL, :ComponentLink1URL, :ComponentLink1Description, :ComponentLink2URL, :ComponentLink2Description, :Author, :CreateDate, :LatestRevisionDate, :Table, :Sim_Model_Name, :Sim_File, :Sim_SubKind, :Sim_Netlist, :Sim_Spice_Prefix, :Sim_Port_Map, :Resistanse, :Value, :TC, :Power, :Tolerance, :Voltage)'
 
     field_keys = list(field)
 
@@ -99,8 +95,14 @@ def add_rec(conn, cursor, info):
 
     is_add = fillinput('Really add this component? (y,n): ', 'n')
     if is_add == 'y':
-    # Make a record
-        cursor.execute(insert_skeleton, field)
+        # Firstly convert dict to sorted tuple for universal INSERT syntax
+        insList = []
+        for col in DBstructure.colNames:
+            insList.append(field[col.replace(' ', '_')])
+        insTuple = tuple(insList)
+
+        # Then make a record
+        cursor.execute(DBstructure.tuple_insert, insTuple)
         conn.commit()
         print('Component added')
     else:
@@ -174,15 +176,19 @@ if len(sys.argv) > 3:
     config.prefill_key = sys.argv[3]
 
 try:
-    conn = sqlite3.connect(config.DB_path)
+    if config.DB_path[-4:] == '.mdb' or config.DB_path[-6:] == '.accdb':
+        conn = pyodbc.connect('DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ='+config.DB_path)
+    elif config.DB_path[-3:] == '.db':
+        conn = sqlite3.connect(config.DB_path)
+    else:
+        raise Exception
+
     cursor = conn.cursor()
     cursor.execute("SELECT `Part Number` FROM components")
 except Exception:
     errprint("Wrong database")
     input("Type any key for exit")
     sys.exit(0)
-
-cursor.execute("PRAGMA foreign_keys = ON")
 
 try:
     while(True):

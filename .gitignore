@@ -8,8 +8,7 @@
 # Data
 *.csv
 *.log
-*.db
-
+*db
 # Test staff
 **/test_arch
 

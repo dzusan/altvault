@@ -1,4 +1,5 @@
 apikey = '12345678'
-DB_path = 'altvault.db'
+DB_path = 'D:\\full\\path\\to\\altvault.accdb'
 prefill_key = 'STM32'
 pdf_viewer = 'E:\\path to\\PDFXEdit.exe'
+author = 'DZUSAN'

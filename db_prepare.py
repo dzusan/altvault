@@ -46,5 +46,8 @@ conn.commit()
 print()
 DBsearch(field["Part_Number"])
 
-
 conn.close()
+
+import DBstructure
+for i in DBstructure.colNames:
+    print('?,', end='')

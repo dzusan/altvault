@@ -14,7 +14,7 @@ def spec(mydb, octo):
     mydb['Part_Description'] = octo['Part Description']
     mydb['Manufacturer'] = octo['Manufacturer'].upper()
     mydb['Manufacturer_Part_Number'] = octo['Part Number']
-    mydb['Author'] = 'LENKOV'
+    mydb['Author'] = config.author
     mydb['CreateDate'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     mydb['LatestRevisionDate'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')     
 
@@ -118,10 +118,12 @@ def subclass(mydb, octo):
 
 
 def footprint(mydb, conn, cursor):
-    query = '''SELECT `Footprint Path`, `Footprint Ref`, `PackageDescription`
+    query = '''SELECT MAX(`Footprint Path`), `Footprint Ref`, MAX(`PackageDescription`)
                FROM components
                WHERE `Case` LIKE ?
                GROUP BY `Footprint Ref`'''
+    # MAX() functions use only as workaround for MS Access query restrictions.
+    # With SQLite this is no effect.
     
     if mydb['Case']:
         findkey = ('%' + mydb['Case'] + '%',)
