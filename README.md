@@ -34,52 +34,54 @@ path\to\create_component.py path\to\altvault.db 12345678 stm32f100c
 script                      data base           apikey   prefill search
 ```
 
-### DB must contain table `components` with columns (varchar255):
-* Part Number [Primary Key]
-* Library Ref
-* Library Path
-* Comment
-* Component Kind
-* Component Type
-* Footprint
-* Pin Count
-* Case
-* Footprint Path
-* Footprint Ref
-* PackageDescription
-* Device
-* Mounted
-* Socket
-* SMD
-* Status
-* Color
-* Part Description
-* Manufacturer
-* Manufacturer Part Number
-* ComponentHeight
-* Manufacturer1 Example
-* Manufacturer1 Part Number
-* Manufacturer1 ComponentHeight
-* HelpURL
-* ComponentLink1URL
-* ComponentLink1Description
-* ComponentLink2URL
-* ComponentLink2Description
-* Author
-* CreateDate
-* LatestRevisionDate
-* Table
-* Sim Model Name
-* Sim File
-* Sim SubKind
-* Sim Netlist
-* Sim Spice Prefix
-* Sim Port Map
-* Resistanse
-* Value
-* TC
-* Power
-* Tolerance
-* Voltage
+### DB must contain
+* Table `components`
+* At least one row
+* Following columns with data type varchar255:
+    * Part Number [Primary Key]
+    * Library Ref
+    * Library Path
+    * Comment
+    * Component Kind
+    * Component Type
+    * Footprint
+    * Pin Count
+    * Case
+    * Footprint Path
+    * Footprint Ref
+    * PackageDescription
+    * Device
+    * Mounted
+    * Socket
+    * SMD
+    * Status
+    * Color
+    * Part Description
+    * Manufacturer
+    * Manufacturer Part Number
+    * ComponentHeight
+    * Manufacturer1 Example
+    * Manufacturer1 Part Number
+    * Manufacturer1 ComponentHeight
+    * HelpURL
+    * ComponentLink1URL
+    * ComponentLink1Description
+    * ComponentLink2URL
+    * ComponentLink2Description
+    * Author
+    * CreateDate
+    * LatestRevisionDate
+    * Table
+    * Sim Model Name
+    * Sim File
+    * Sim SubKind
+    * Sim Netlist
+    * Sim Spice Prefix
+    * Sim Port Map
+    * Resistanse
+    * Value
+    * TC
+    * Power
+    * Tolerance
+    * Voltage
 
-And table must contain at least one row.
