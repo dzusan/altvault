@@ -2,50 +2,33 @@ import sqlite3
 import pyodbc
 import sys
 import colorama
-import win32com.client as win
 
 # User
 import config
 import octopart
 import filler
 import DBstructure
+from markup import *
 
-def fillinput(prompt, default=""):
-    win.Dispatch("WScript.Shell").SendKeys(default)
-    return input(prompt)
-
-def errprint(*args, **kwargs):
-    print("\x1b[1;31;40mERROR: ", end="")
-    print(*args, end="", **kwargs)
-    print("\x1b[0m")
 
 def search_dialog(keyword):
     result = octopart.search(keyword)
     print(result[0][0], result[0][1])
-
-    for i in range(1, len(result)):
-        
-        if result[i][2] == None:
-            info = 'No desctiption'
-        elif len(result[i][2]) > 60:
-            info = (result[i][2][:60] + '...')
-        else:
-            info = result[i][2]
-
-        print('{} {:<20} {:<20} {}'.format(i, result[i][0], result[i][1], info))
-    
-    choice_word = input('Your decision (number or new keyword): ')
-
-    if choice_word.isdecimal():
-        choice_index = int(choice_word)
-        if choice_index >= 1 and choice_index <= 9:
-            print('You choose {} (UID {})'.format(result[choice_index][0], result[choice_index][3]))
-            return (True, result[choice_index][3])
-        else:
-            print('No such variant')
-            return(False, '')
-    else:        
-        return (False, choice_word)
+    if result[0][1] == 0:
+        return (False, keyword)
+    else:
+        tableprint(result[1:], 2, tableName='First items', itemize=1, lastCol=2)
+        choice_word = input('Your decision (number or new keyword): ')
+        if choice_word.isdecimal():
+            choice_index = int(choice_word)
+            if choice_index >= 1 and choice_index <= 9:
+                print('You choose {} (UID {})'.format(result[choice_index][0], result[choice_index][3]))
+                return (True, result[choice_index][3])
+            else:
+                print('No such variant')
+                return(False, '')
+        else:        
+            return (False, choice_word)
 
 def add_rec(conn, cursor, info):
     # Create dict from coloumns
@@ -62,10 +45,10 @@ def add_rec(conn, cursor, info):
     filler.datasheet(field, info)
 
     field_keys = list(field)
-
-    print('\n{:>32}'.format('== New Part =='))
+    displayArray = []
     for i in range(len(field_keys)):
-        print('{:3} {:<30} {}'.format(i, field_keys[i].replace('_', ' '), field[field_keys[i]]))
+        displayArray.append([i, field_keys[i].replace('_', ' '), field[field_keys[i]]])
+    tableprint(displayArray, 2, tableName='New part')
 
     edit_flag = False
     is_edit = None
@@ -89,9 +72,10 @@ def add_rec(conn, cursor, info):
                 print('No such field')
 
     if edit_flag:
-        print('\n{:>32}'.format('== Edited Part =='))
+        displayArray = []
         for i in range(len(field_keys)):
-            print('{:3} {:<30} {}'.format(i, field_keys[i].replace('_', ' '), field[field_keys[i]]))
+            displayArray.append([i, field_keys[i].replace('_', ' '), field[field_keys[i]]])
+        tableprint(displayArray, 2, tableName='Edited part')
 
     is_add = fillinput('Really add this component? (y,n): ', 'n')
     if is_add == 'y':
@@ -124,17 +108,7 @@ def dialog(conn, cursor, prefill=''):
                         findkey)
         db_result = cursor.fetchall()
         if db_result:
-            print('Found in DB Lib')
-            for rec in db_result:
-
-                if rec[1] == None:
-                    info = 'No desctiption'
-                elif len(rec[1]) > 30:
-                    info = (rec[1][:30] + '... ')
-                else:
-                    info = rec[1]
-
-                print('{:<20} {:<35} {:<15} {}'.format(rec[0], info, rec[2], rec[3]))
+            tableprint(db_result, 1, tableName='Found in DB Lib')
             return request
         else:
             print('Not found in DB Lib')
@@ -145,10 +119,11 @@ def dialog(conn, cursor, prefill=''):
             if octopart_result[0]:
                 part_info = octopart.part(octopart_result[1])
 
-                print('\n{:>30} {}'.format('== Part', 'Specs =='))
+                displayArray = []
                 for key in part_info.keys():
                     if key != 'Categories' and key != 'Datasheets': # <-- Comment to print all
-                        print('{:>30} {}'.format(key, part_info[key]))
+                        displayArray.append([key, part_info[key]])
+                tableprint(displayArray, 1, tableName='Part specs')
 
                 is_add = fillinput('Add component to DB Lib? (y,n): ', 'y')
                 if is_add == 'y':

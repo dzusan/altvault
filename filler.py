@@ -6,6 +6,7 @@ import urllib
 
 # User
 import config
+from markup import *
 
 def spec(mydb, octo):
     # Independed fields
@@ -118,7 +119,7 @@ def subclass(mydb, octo):
 
 
 def footprint(mydb, conn, cursor):
-    query = '''SELECT MAX(`Footprint Path`), `Footprint Ref`, MAX(`PackageDescription`)
+    query = '''SELECT `Footprint Ref`, MAX(`Footprint Path`), MAX(`PackageDescription`)
                FROM components
                WHERE `Case` LIKE ?
                GROUP BY `Footprint Ref`'''
@@ -130,28 +131,20 @@ def footprint(mydb, conn, cursor):
         cursor.execute(query, findkey)
         options = cursor.fetchall()
         if options:
-            print('\n{:>30} {}'.format('== Package', 'Options =='))
-
-            for i in range(len(options)):        
-                if options[i][2] == None:
-                    descr = 'No desctiption'
-                elif len(options[i][2]) > 35:
-                    descr = (options[i][2][:35] + '...')
-                else:
-                    descr = options[i][2]
-
-                print('{:<3} {:<30} {:<42} {}'.format(i, options[i][1], options[i][0], descr))
-            
-            choice_word = input('Your decision (number): ')
-
-            try:
-                choice_index = int(choice_word)
-                mydb['Footprint'] = options[choice_index][1]
-                mydb['Footprint_Path'] = options[choice_index][0]
-                mydb['Footprint_Ref'] = options[choice_index][1]
-                mydb['PackageDescription'] = options[choice_index][2]
-            except:
-                print('No such option')
+            if options[0][0]: # Workaround when MS Access give [(None, None, None)] if keyword not found
+                tableprint(options, 2, tableName='Package options', itemize=0)
+                choice_word = input('Your decision (number): ')
+                try:
+                    choice_index = int(choice_word)
+                    print('You choose {} ({})'.format(options[choice_index][0], options[choice_index][2]))
+                    mydb['Footprint'] = options[choice_index][0]
+                    mydb['Footprint_Path'] = options[choice_index][1]
+                    mydb['Footprint_Ref'] = options[choice_index][0]
+                    mydb['PackageDescription'] = options[choice_index][2]
+                except:
+                    print('No such option')
+            else:
+               print('Not found such package in DB Lib') 
         else:
             print('Not found such package in DB Lib')
     else:
@@ -162,20 +155,8 @@ def datasheet(mydb, octo):
     options = octo['Datasheets']
 
     if options:
-        print('\n{:>30} {}'.format('== Datasheet', 'Options =='))
-
-        for i in range(len(options)):
-            if options[i][1] == None:
-                url = 'No URL'
-            elif len(options[i][1]) > 60:
-                url = (options[i][1][:60] + '...')
-            else:
-                url = options[i][1]
-
-            print('{:<3} {:<25} {}'.format(i, options[i][0], url))
-
+        tableprint(options, 1, tableName='Datasheet options', itemize=0)
         is_fit = 'n'
-
         while is_fit != 'y':
             choice_word = input('Your decision (number): ')
             try:
