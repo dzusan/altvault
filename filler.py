@@ -183,11 +183,19 @@ def datasheet(mydb, octo):
 
         path += '\\' + filename + '.pdf'
 
+        # Fix 'HTTP Error 403' from https://stackoverflow.com/a/36663971
+        opener = urllib.request.build_opener()
+        opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
+        urllib.request.install_opener(opener)
+
+        print('Downloading...')
         try:
             urllib.request.urlretrieve(options[choice_index][1], path)
-            mydb['HelpURL'] = path
         except Exception as e:
-            print('Download failed', e)
+            print('Download failed.', e)
+        else:
+            print('Download successful')
+            mydb['HelpURL'] = path
     else:
         print('Datasheets not found')
     
