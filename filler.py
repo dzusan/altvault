@@ -3,6 +3,7 @@ import sqlite3
 from datetime import datetime
 import subprocess
 import urllib
+import re
 
 # User
 import config
@@ -115,6 +116,42 @@ def subclass(mydb, octo):
                 mydb['Library_Ref'] = 'Operational Amplifier x4 Type1'
         else:
             mydb['Library_Ref'] = None
+
+
+def findcase(mydb, conn, cursor):
+    print('Searching \'Case\' in Part Description')
+    cursor.execute('SELECT Case FROM components GROUP BY Case')
+    results = cursor.fetchall()
+
+    # Stage 1 (optimistic): Search raw like 'SOT23-3'
+    for row in results:
+        try:
+            if len(row[0]) > 2: # <-- can rise exception
+                fullCaseName = row[0]
+                for key in mydb:
+                    if mydb[key]:
+                        if mydb[key].upper().find(fullCaseName) != -1:
+                            print('Found (optimistic):', fullCaseName)
+                            mydb['Case'] = fullCaseName
+                            return
+        except:
+            pass
+    
+    # Stage 2 (hopeless): Search only first letters set like 'SOT'
+    found = []
+    for row in results:
+        try:
+            caseAcronym = re.split('(\d+)', row[0])[0]  # <-- can rise exception
+            if len(caseAcronym) > 2:
+                for key in mydb:
+                    if mydb[key]:
+                        if mydb[key].upper().find(caseAcronym) != -1:
+                            found.append(caseAcronym)
+        except:
+            pass
+    longestMatch = max(found, key=len)
+    print('Found (hopeless):', longestMatch)
+    mydb['Case'] = longestMatch
 
 
 

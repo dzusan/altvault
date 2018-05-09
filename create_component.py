@@ -39,6 +39,10 @@ def add_rec(conn, cursor, info):
     # Fill the fields
     filler.spec(field, info)
     filler.subclass(field, info)
+
+    if not field['Case']: # Another way to find 'Case'
+        filler.findcase(field, conn, cursor)
+        
     # It's preferable to call filler.subclass() before it to fill the 'Case'
     filler.footprint(field, conn, cursor)
     # Choose the datasheet (and preferable to call filler.subclass() before it to fill the 'Table')
