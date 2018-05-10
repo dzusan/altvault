@@ -3,3 +3,6 @@ DB_path = 'D:\\full\\path\\to\\altvault.accdb'
 prefill_key = 'STM32'
 pdf_viewer = 'E:\\path to\\PDFXEdit.exe'
 author = 'DZUSAN'
+
+# Original CERN library directory 'CernLib' (path to *.mdb files)
+CERNdir = 'D:\\full\\path\\to\\CernLib'
