@@ -39,7 +39,7 @@ for DB_path in DBs:
 
         query = 'SELECT * FROM `'
         query += table    
-        query += '`'
+        query += '` WHERE CreateDate>=#01/01/2017#'
 
         donorCur.execute(query)
         parts = donorCur.fetchall()
@@ -53,10 +53,14 @@ for DB_path in DBs:
                 # Obtain match columns and assembly INSERT query
                 colSkeleton = ''
                 colCount = 0
+                libPathIdx = 0
+                footPathIdx = 0
 
                 for col in donorCur.columns(table=table):
                     if col.column_name in DBstructure.colNames:
                         colSkeleton += '`' + col.column_name + '`, '
+                        libPathIdx = colCount if col.column_name == 'Library Path' else libPathIdx
+                        footPathIdx = colCount if col.column_name == 'Footprint Path' else footPathIdx
                         colCount += 1
 
                 donorSelect = 'SELECT '
@@ -77,6 +81,13 @@ for DB_path in DBs:
                 
                 donorCur.execute(donorSelect, part[0])
                 donorResult = donorCur.fetchall()
+
+                # Change Library and Footprint Path (move to 'CERN\' directory)
+                if libPathIdx != 0:
+                    donorResult[0][libPathIdx] = 'CERN\\' + donorResult[0][libPathIdx]                    
+                if footPathIdx != 0:
+                    donorResult[0][footPathIdx] = 'CERN\\' + donorResult[0][footPathIdx]
+                
                 targetCur.execute(targetInsert, donorResult[0])
                 targetCur.commit()
 
