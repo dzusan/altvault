@@ -7,7 +7,6 @@ from datetime import datetime
 import DBstructure
 import config
 
-# TODO: generate query with .format()
 
 ### Create log file ###
 nowTimeStamp = datetime.now().strftime("%Y-%m-%d %H.%M.%S")
@@ -90,18 +89,10 @@ for DB_path in DBs:
                         footPathIdx = colCount if col.column_name == 'Footprint Path' else footPathIdx
                         colCount += 1
 
-                donorSelect = 'SELECT '
-                donorSelect += colSkeleton[:-2]
-                donorSelect += ' FROM `'
-                donorSelect += table
-                donorSelect += '` WHERE `Part Number` LIKE ?'
+                donorSelect = 'SELECT {} FROM `{}` WHERE `Part Number` LIKE ?'.format(colSkeleton[:-2], table)
                 logFile.write('Assembled SELECT query for donor Database:\n{}\n\n'.format(donorSelect))
 
-                targetInsert = 'INSERT INTO components ('
-                targetInsert += colSkeleton
-                targetInsert += '`Table`) VALUES ('
-                targetInsert += '?,'*colCount
-                targetInsert += '?)'
+                targetInsert = 'INSERT INTO components ({}`Table`) VALUES ({}?)'.format(colSkeleton, '?,'*colCount)
                 logFile.write('Assembled INSERT query for target Database:\n{}\n\n'.format(targetInsert))
 
                 logFile.write('-----------------------------\n\n')
