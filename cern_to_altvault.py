@@ -11,7 +11,8 @@ import config
 
 
 ### Create log file ###
-nowTimeStamp = datetime.now().strftime("%Y-%m-%d %H.%M.%S")
+beginTime = datetime.now()
+nowTimeStamp = beginTime.strftime("%Y-%m-%d %H.%M.%S")
 logFileName = os.path.dirname(config.DB_path) + '\\Transfer ' + nowTimeStamp + '.log'
 
 try:
@@ -24,7 +25,9 @@ else:
 msg = 'Date/Time: {}\nTarget DB: {}\nDonor CERN DBs: {}\n\n'.format(nowTimeStamp, config.DB_path, config.CERNdir)
 logFile.write(msg)
 
-print('Processing...')
+progressFlag = [True]
+print('Processing |', end='')
+progressMarker(progressFlag)
 
 # Connect to target single table Database
 try:
@@ -81,11 +84,12 @@ for DB_path in DBs:
 
                 logFile.write('-------- Table {} ---------\n\n'.format(table))
                 query = 'SELECT * FROM `{}`'.format(table)
-                # query = 'SELECT * FROM `{}` WHERE CreateDate>=#01/01/2017#'.format(table)
+                # query = 'SELECT * FROM `{}` WHERE CreateDate>=#03/01/2017#'.format(table)
                 donorCur.execute(query)
                 parts = donorCur.fetchall()
 
                 for part in parts:
+                    progressMarker(progressFlag)
                     targetCur.execute(targetSearch, part[0])
                     targetResult = targetCur.fetchall()
                     if not targetResult: # If the part is not in the database yet
@@ -138,20 +142,24 @@ for DB_path in DBs:
                 
                 logFile.write('*************************************\n')
                 logFile.write('Transfered records in this table: {}\n'.format(tableRecords))
-                logFile.write('*************************************\n\n\n')
+                logFile.write('*************************************\n\n\n')                
         else:
             logFile.write('Not found valid tables in Database')
 
         donorCon.close()
 
 # Statistics
-logFile.write('\n\n\n****** Total Statistics ******\n')
+logFile.write('\n\n\n********* Total Statistics *********\n')
 logFile.write('Total donor DBs: {}\n'.format(totalDBs))
 logFile.write('Total read tables: {}\n'.format(totalTables))
 logFile.write('Total transfered records: {}\n'.format(totalRecords))
-logFile.write('******************************\n')
+totalTime = datetime.now() - beginTime
+totalMinSec = divmod(totalTime.seconds, 60)
+logFile.write('Transfer time: {} Minutes {} Seconds\n'.format(totalMinSec[0], totalMinSec[1]))
+logFile.write('************************************\n')
 
-print('Transfer successful')
+
+print('\nTransfer successful')
 print('See log in {}'.format(logFileName))
 
 targetCon.close()

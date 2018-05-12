@@ -1,3 +1,4 @@
+import sys
 import win32com.client as win
 from terminaltables import AsciiTable
 
@@ -9,6 +10,15 @@ def errprint(*args, **kwargs):
     print("\x1b[1;31;40mERROR: ", end="")
     print(*args, end="", **kwargs)
     print("\x1b[0m")
+
+def progressMarker(flag):
+    if flag[0] == True:
+        sys.stdout.write("\b|")
+        flag[0] = False
+    else:
+        sys.stdout.write("\b-")
+        flag[0] = True
+    sys.stdout.flush()
 
 def tableprint(noModifydata, cutColoumn, tableName = '', itemize=-1, initCol=0, lastCol = 10):
     MAX_TABLE_WIDTH = 80
