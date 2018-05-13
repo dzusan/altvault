@@ -32,7 +32,7 @@ def spec(mydb, octo):
         mydb['SMD'] = None
     
     # ??? fields
-    mydb['Component_Kind'] = 'Standard'
+    # mydb['Component_Kind'] = 'Standard'
     mydb['Component_Type'] = 'Standard'
 
     
@@ -43,6 +43,7 @@ def subclass(mydb, octo):
         mydb['Case'] = octo['<Case/Package>'] if '<Case/Package>' in octo.keys() else None
         mydb['Sim_Netlist'] = '@DESIGNATOR %1 %2 @VALUE'
         mydb['Voltage'] = octo['<Voltage Rating (DC)>'] if '<Voltage Rating (DC)>' in octo.keys() else None
+        mydb['Component_Kind'] = 'Passives'
 
     if 'Integrated Circuits (ICs)' in octo['Categories']:
         mydb['Comment'] = '=Device'
@@ -54,6 +55,7 @@ def subclass(mydb, octo):
                 mydb['Case'] = octo['<Case/Package>']
         else:
             mydb['Case'] = None
+        mydb['Component_Kind'] = 'Semiconductors'
 
     if 'Capacitors' in octo['Categories']:
         mydb['Library_Path'] = 'SchLib\\Capacitors.SchLib'
@@ -120,7 +122,7 @@ def subclass(mydb, octo):
 
 def findcase(mydb, conn, cursor):
     print('Searching \'Case\' in Part Description')
-    cursor.execute('SELECT Case FROM components GROUP BY Case')
+    cursor.execute('SELECT Case FROM Semiconductors GROUP BY Case')
     results = cursor.fetchall()
 
     # Stage 1 (optimistic): Search raw like 'SOT23-3'
@@ -157,7 +159,7 @@ def findcase(mydb, conn, cursor):
 
 def footprint(mydb, conn, cursor):
     query = '''SELECT `Footprint Ref`, MAX(`Footprint Path`), MAX(`PackageDescription`)
-               FROM components
+               FROM Semiconductors
                WHERE `Case` LIKE ?
                GROUP BY `Footprint Ref`'''
     # MAX() functions use only as workaround for MS Access query restrictions.

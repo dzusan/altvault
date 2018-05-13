@@ -89,8 +89,14 @@ def add_rec(conn, cursor, info):
             insList.append(field[col.replace(' ', '_')])
         insTuple = tuple(insList)
 
-        # Then make a record
-        cursor.execute(DBstructure.tuple_insert, insTuple)
+        # Then choose table and make a record
+        if field['Component_Kind'] == 'Semiconductors':
+            cursor.execute(DBstructure.tupleInsSemiconductors, insTuple)
+        elif field['Component_Kind'] == 'Passives':
+            cursor.execute(DBstructure.tupleInsPassives, insTuple)
+        else:
+            cursor.execute(DBstructure.tupleInsElectromechanical, insTuple)
+
         conn.commit()
         print('Component added')
     else:
@@ -107,7 +113,7 @@ def dialog(conn, cursor, prefill=''):
         print('Search in DB Lib ...')
         findkey = ('%'+request+'%',)
         cursor.execute('''SELECT `Part Number`, `Part Description`, Author, CreateDate
-                        FROM components
+                        FROM Semiconductors
                         WHERE `Part Number` LIKE ?''',
                         findkey)
         db_result = cursor.fetchall()
@@ -163,7 +169,7 @@ try:
         raise Exception
 
     cursor = conn.cursor()
-    cursor.execute("SELECT `Part Number` FROM components")
+    cursor.execute("SELECT `Part Number` FROM Semiconductors")
 except Exception:
     errprint("Wrong database")
     input("Type any key for exit")
