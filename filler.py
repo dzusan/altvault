@@ -10,6 +10,7 @@ import config
 from markup import *
 
 def spec(mydb, octo):
+    print('Filling specs ...')
     # Independed fields
     mydb['Part_Number'] = octo['Part Number']
     mydb['Mounted'] = 'Yes'
@@ -38,6 +39,7 @@ def spec(mydb, octo):
     
 
 def subclass(mydb, octo):
+    print('Filling subclass ...')
     if 'Passive Components' in octo['Categories']:
         mydb['Comment'] = '=Value'
         mydb['Case'] = octo['<Case/Package>'] if '<Case/Package>' in octo.keys() else None
@@ -121,7 +123,7 @@ def subclass(mydb, octo):
 
 
 def findcase(mydb, conn, cursor):
-    print('Searching \'Case\' in Part Description')
+    print('Searching \'Case\' in Part Description ...')
     cursor.execute('SELECT Case FROM Semiconductors GROUP BY Case')
     results = cursor.fetchall()
 
@@ -150,14 +152,17 @@ def findcase(mydb, conn, cursor):
                         if mydb[key].upper().find(caseAcronym) != -1:
                             found.append(caseAcronym)
         except:
-            pass
-    longestMatch = max(found, key=len)
-    print('Found (hopeless):', longestMatch)
-    mydb['Case'] = longestMatch
+            pass     
+
+    if found:
+        longestMatch = max(found, key=len)        
+        print('Found (hopeless):', longestMatch)
+        mydb['Case'] = longestMatch
 
 
 
 def footprint(mydb, conn, cursor):
+    print('Matching \'Case\' field with footprint ...')
     query = '''SELECT `Footprint Ref`, MAX(`Footprint Path`), MAX(`PackageDescription`)
                FROM Semiconductors
                WHERE `Case` LIKE ?
@@ -187,7 +192,7 @@ def footprint(mydb, conn, cursor):
         else:
             print('Not found such package in DB Lib')
     else:
-        print('No \'Case\' field')
+        print('\'Case\' field is empty')
 
 
 def datasheet(mydb, octo):
