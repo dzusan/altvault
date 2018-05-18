@@ -82,6 +82,7 @@ def subclass(mydb, octo):
         mydb['Component_Kind'] = 'Electromechanical'      
         mydb['Table'] = mydb['Manufacturer']
         mydb['Library_Ref'] = '8Pin'
+        mydb['PackageDescription'] = octo['Part Description']
         mydb['Library_Path'] = config.author + '\\SchLib\\Connectors GOST.SchLib' # Default
         mydb['Footprint_Path'] = config.author + '\\PcbLib\\Connectors THD.PcbLib' # Default
 
@@ -165,7 +166,7 @@ def findcase(mydb, conn, cursor):
     for row in results:
         try:
             if len(row[0]) > 2: # <-- can rise exception
-                fullCaseName = row[0]
+                fullCaseName = ' ' + row[0] + ' ' # Whitespaces for ignore partial matches
                 for key in mydb:
                     if mydb[key]:
                         if mydb[key].upper().find(fullCaseName) != -1:
@@ -174,9 +175,9 @@ def findcase(mydb, conn, cursor):
                             return
         except:
             pass
-    
+
     # Stage 2 (hopeless): Search only first letters set like 'SOT'
-    found = []
+    found_hopeless = []
     for row in results:
         try:
             caseAcronym = re.split('(\d+)', row[0])[0]  # <-- can rise exception
@@ -184,12 +185,12 @@ def findcase(mydb, conn, cursor):
                 for key in mydb:
                     if mydb[key]:
                         if mydb[key].upper().find(caseAcronym) != -1:
-                            found.append(caseAcronym)
+                            found_hopeless.append(caseAcronym)
         except:
             pass     
 
-    if found:
-        longestMatch = max(found, key=len)        
+    if found_hopeless:
+        longestMatch = max(found_hopeless, key=len)        
         print('Found (hopeless):', longestMatch)
         mydb['Case'] = longestMatch
 
