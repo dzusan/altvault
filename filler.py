@@ -11,8 +11,7 @@ from markup import *
 
 def spec(mydb, octo):
     print('Filling specs ...')
-    # Independed fields
-    mydb['Part_Number'] = octo['Part Number']
+    # Independed fields    
     mydb['Mounted'] = 'Yes'
     mydb['Part_Description'] = octo['Part Description']
     mydb['Manufacturer'] = octo['Manufacturer'].upper()
@@ -31,6 +30,12 @@ def spec(mydb, octo):
             mydb['SMD'] = 'No'
     else:
         mydb['SMD'] = None
+
+    # Default fields (temporary prefer to overwrite onward)
+    mydb['Part_Number'] = octo['Part Number']
+    mydb['Library_Ref'] = octo['Part Number']
+    mydb['Footprint_Ref'] = octo['Part Number']
+    mydb['Footprint'] = octo['Part Number']
     
     # ??? fields
     # mydb['Component_Kind'] = 'Standard'
@@ -39,7 +44,16 @@ def spec(mydb, octo):
     
 
 def subclass(mydb, octo):
-    print('Filling subclass ...')
+    print('Obtained subclasses: ', end='')
+    for i, sc in enumerate(octo['Categories']):
+        print(sc, end='')
+        if i != len(octo['Categories']) - 1:
+            print(', ', end='')
+
+    print('\nFilling fields according this subclasses ...')
+    
+    ### LOWER LEVEL ###
+
     if 'Passive Components' in octo['Categories']:
         mydb['Comment'] = '=Value'
         mydb['Case'] = octo['<Case/Package>'] if '<Case/Package>' in octo.keys() else None
@@ -58,6 +72,20 @@ def subclass(mydb, octo):
         else:
             mydb['Case'] = None
         mydb['Component_Kind'] = 'Semiconductors'
+        mydb['Library_Path'] = config.author + '\\SchLib\\SOC_GOST.SchLib' # Default
+        mydb['Footprint_Path'] = config.author + '\\PcbLib\\ICs And Semiconductors SMD.PcbLib' # Default
+    
+    if 'Connectors ' in octo['Categories']:  # Yeah, it's weird, but in Octopart 'Connectors ' with whitespase
+        mydb['Part_Number'  ] = mydb['Manufacturer'] + '_' + octo['Part Number']
+        mydb['Footprint_Ref'] = mydb['Manufacturer'] + '_' + octo['Part Number']
+        mydb['Footprint'    ] = mydb['Manufacturer'] + '_' + octo['Part Number']
+        mydb['Component_Kind'] = 'Electromechanical'      
+        mydb['Table'] = mydb['Manufacturer']
+        mydb['Library_Ref'] = '8Pin'
+        mydb['Library_Path'] = config.author + '\\SchLib\\Connectors GOST.SchLib' # Default
+        mydb['Footprint_Path'] = config.author + '\\PcbLib\\Connectors THD.PcbLib' # Default
+
+    ### MIDDLE LEVEL ###
 
     if 'Capacitors' in octo['Categories']:
         mydb['Library_Path'] = 'SchLib\\Capacitors.SchLib'
@@ -74,6 +102,8 @@ def subclass(mydb, octo):
         else:
             mydb['Value'] = None
         mydb['Tolerance'] = octo['<Capacitance Tolerance>']  if '<Capacitance Tolerance>' in octo.keys() else None
+        mydb['Library_Path'] = 'CERN\\SchLib\\Capacitors.SchLib' # Default
+        mydb['Footprint_Path'] = config.author + '\\PcbLib\\Capacitors THD.PcbLib' # Default
     
     if 'Resistors' in octo['Categories']:
         mydb['Library_Path'] = 'SchLib\\Resistors.SchLib'
@@ -100,6 +130,10 @@ def subclass(mydb, octo):
                 mydb['Library_Ref'] = 'Resistor - 5%'
         else:
             mydb['Library_Ref'] = None
+        mydb['Library_Path'] = 'CERN\\SchLib\\Resistors.SchLib' # Default
+        mydb['Footprint_Path'] = config.author + '\\PcbLib\\Resistors SMD.PcbLib' # Default
+
+    ### UPPER LEVEL ###
 
     if 'Ceramic Capacitors' in octo['Categories']:
         mydb['Library_Ref'] = 'Capacitor - non polarized'
