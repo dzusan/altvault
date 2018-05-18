@@ -41,6 +41,7 @@ def add_rec(conn, cursor, info):
     filler.subclass(field, info)
 
     if not field['Case']: # Another way to find 'Case'
+        print('\'Case\' field is not in subclass')
         filler.findcase(field, conn, cursor)
         
     # It's preferable to call filler.subclass() before it to fill the 'Case'
