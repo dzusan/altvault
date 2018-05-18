@@ -39,6 +39,11 @@ def add_rec(conn, cursor, info):
     # Fill the fields
     filler.spec(field, info)
     filler.subclass(field, info)
+    if not field['Component_Kind']:
+        print('Mandatory field \'Component Kind\' not found')
+        kinds = (('Semiconductors',), ('Passives',), ('Electromechanical',))
+        index = selection(kinds, 1, 'Component Kind')
+        field['Component_Kind'] = kinds[index][0]
 
     if not field['Case']: # Another way to find 'Case'
         print('\'Case\' field is not in subclass')

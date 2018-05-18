@@ -60,3 +60,22 @@ def tableprint(noModifydata, cutColoumn, tableName = '', itemize=-1, initCol=0, 
     table.inner_heading_row_border = False
     print()
     print(table.table)
+
+
+def selection(noModifydata, cutColoumn,  selectionName):
+    print('Choose {}:'.format(selectionName))
+    tableprint(noModifydata, cutColoumn, tableName=selectionName, itemize=1)
+    choice_index = 0
+    while True:
+        choice_word = fillinput('Your decision (number): ', '1')        
+        try:
+            choice_index = int(choice_word)
+            if choice_index > 0:
+                # This solution in 'try' also able to ignore fractional numbers
+                choise_item = noModifydata[choice_index - 1] 
+        except:
+            print('No such option')
+        else:
+            print('You choose {}\n'.format(noModifydata[choice_index - 1][0]))
+            return choice_index - 1
+            
