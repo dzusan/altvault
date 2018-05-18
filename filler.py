@@ -246,8 +246,8 @@ def datasheet(mydb, octo):
             is_fit = input('Is it datasheet fit? (y,n): ')
 
         path = 'C:\\Datasheets\\'
-        if mydb['Table']:
-            path += mydb['Table']
+        if mydb['Component_Kind'] and mydb['Table']:
+            path += mydb['Component_Kind'] + '\\' + mydb['Table']
         else:
             path += 'Unsorted'
 
@@ -255,7 +255,7 @@ def datasheet(mydb, octo):
             os.makedirs(path)
         
         filename = mydb['Part_Number']
-        illegals = ('\\', '/', ':', '*', '?', '\'', '\"', '<', '>', '|', '_', '.', ',')
+        illegals = ('\\', '/', ':', '*', '?', '\'', '\"', '<', '>', '|', '.', ',')
         for sym in illegals:
             filename = filename.replace(sym, ' ')
 
