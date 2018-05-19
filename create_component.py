@@ -2,6 +2,7 @@ import sqlite3
 import pyodbc
 import sys
 import colorama
+import os
 
 # User
 import config
@@ -30,11 +31,25 @@ def search_dialog(keyword):
         else:        
             return (False, choice_word)
 
+def select_author():
+    illegals = ('Datasheets', 'History')
+    glob_path = os.path.dirname(config.DB_path)
+    possible_authors = [name for name in os.listdir(glob_path) 
+                        if os.path.isdir(glob_path + '\\' + name)
+                        and name not in illegals]
+    
+    index = selection(possible_authors, 'Author')
+    return possible_authors[index]
+
+
 def add_rec(conn, cursor, info):
     # Create dict from coloumns
     field = {}
     for col in DBstructure.colNames:
         field[col.replace(' ', '_')] = None
+
+    # Select Author
+    filler.author = select_author()
 
     # Fill the fields
     filler.spec(field, info)
