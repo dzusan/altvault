@@ -214,11 +214,11 @@ def footprint(mydb, conn, cursor):
         options = cursor.fetchall()
         if options:
             if options[0][0]: # Workaround when MS Access give [(None, None, None)] if keyword not found
-                choice_index = selection(options, 'Package options', cutColoumn=2)
-                mydb['Footprint'] = options[choice_index][0]
-                mydb['Footprint_Path'] = options[choice_index][1]
-                mydb['Footprint_Ref'] = options[choice_index][0]
-                mydb['PackageDescription'] = options[choice_index][2]
+                choice_item = selection(options, 'Package options', cutColoumn=2)
+                mydb['Footprint'] = choice_item[0]
+                mydb['Footprint_Path'] = choice_item[1]
+                mydb['Footprint_Ref'] = choice_item[0]
+                mydb['PackageDescription'] = choice_item[2]
             else:
                print('Not found such package in DB Lib') 
         else:

@@ -90,5 +90,5 @@ def selection(options, selectionName, cutColoumn = 1):
             for col in noModifydata[choice_index - 1]:
                 print(col)
             print()
-            return choice_index - 1
+            return options[choice_index - 1]
             
