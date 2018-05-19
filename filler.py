@@ -243,9 +243,9 @@ def datasheet(mydb, octo):
 
             is_fit = input('Is it datasheet fit? (y,n): ')
 
-        path = 'C:\\Datasheets\\'
-        if mydb['Component_Kind'] and mydb['Table']:
-            path += mydb['Component_Kind'] + '\\' + mydb['Table']
+        path = 'C:\\Datasheets\\' + mydb['Component_Kind'] + '\\'
+        if mydb['Table']:
+            path += mydb['Table']
         else:
             path += 'Unsorted'
 

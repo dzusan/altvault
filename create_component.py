@@ -110,13 +110,18 @@ def add_rec(conn, cursor, info):
         # Then choose table and make a record
         if field['Component_Kind'] == 'Semiconductors':
             cursor.execute(DBstructure.tupleInsSemiconductors, insTuple)
+            conn.commit()
+            print('Component added')
         elif field['Component_Kind'] == 'Passives':
             cursor.execute(DBstructure.tupleInsPassives, insTuple)
-        else:
+            conn.commit()
+            print('Component added')
+        elif field['Component_Kind'] == 'Electromechanical':
             cursor.execute(DBstructure.tupleInsElectromechanical, insTuple)
-
-        conn.commit()
-        print('Component added')
+            conn.commit()
+            print('Component added')
+        else:
+            print('No table like Component Kind in DB')        
     else:
         print('You cancel')
 
