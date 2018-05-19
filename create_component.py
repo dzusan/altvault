@@ -17,7 +17,7 @@ def search_dialog(keyword):
     if result[0][1] == 0:
         return (False, keyword)
     else:
-        tableprint(result[1:], 2, tableName='First items', itemize=1, lastCol=2)
+        tableprint(result[1:], 2, tableName='Part', itemize=1, lastCol=2)
         choice_word = input('Your decision (number or new keyword): ')
         if choice_word.isdecimal():
             choice_index = int(choice_word)
@@ -41,8 +41,8 @@ def add_rec(conn, cursor, info):
     filler.subclass(field, info)
     if not field['Component_Kind']:
         print('Mandatory field \'Component Kind\' not found')
-        kinds = (('Semiconductors',), ('Passives',), ('Electromechanical',))
-        index = selection(kinds, 1, 'Component Kind')
+        kinds = ('Semiconductors', 'Passives', 'Electromechanical')
+        index = selection(kinds, 'Component Kind')
         field['Component_Kind'] = kinds[index][0]
 
     if not field['Case']: # Another way to find 'Case'

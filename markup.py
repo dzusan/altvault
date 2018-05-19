@@ -31,14 +31,17 @@ def tableprint(noModifydata, cutColoumn, tableName = '', itemize=-1, initCol=0, 
     for i, row in enumerate(noModifydata):
         data.append(list(row[initCol:(lastCol+1)]))
 
-    # Add item number if needed
+    # If selection table
     if itemize >= 0:
+        tableName = 'Select ' + tableName[:MAX_TABLE_WIDTH - 10]
+        # Add item number if needed
         cutColoumn += 1
         for row in data:
             row.insert(0, itemize)
             itemize += 1
-    
-    tableName = tableName[:MAX_TABLE_WIDTH - 3]
+    else:
+        tableName = tableName[:MAX_TABLE_WIDTH - 3]
+
     table = AsciiTable(data, title = tableName)
     width = table.table_width
 
@@ -58,13 +61,20 @@ def tableprint(noModifydata, cutColoumn, tableName = '', itemize=-1, initCol=0, 
         table = AsciiTable(data, title = tableName)
 
     table.inner_heading_row_border = False
-    print()
     print(table.table)
 
 
-def selection(noModifydata, cutColoumn,  selectionName):
-    print('Choose {}:'.format(selectionName))
+def selection(options, selectionName, cutColoumn = 1):
+    noModifydata = []
+    if len(options[0][0]) == 1:
+        for item in options:
+            noModifydata.append((item,))
+    else:
+        noModifydata = options
+
+    print()
     tableprint(noModifydata, cutColoumn, tableName=selectionName, itemize=1)
+    
     choice_index = 0
     while True:
         choice_word = fillinput('Your decision (number): ', '1')        
@@ -76,6 +86,9 @@ def selection(noModifydata, cutColoumn,  selectionName):
         except:
             print('No such option')
         else:
-            print('You choose {}\n'.format(noModifydata[choice_index - 1][0]))
+            print('Your choice:')
+            for col in noModifydata[choice_index - 1]:
+                print(col)
+            print()
             return choice_index - 1
             

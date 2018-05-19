@@ -211,17 +211,11 @@ def footprint(mydb, conn, cursor):
         options = cursor.fetchall()
         if options:
             if options[0][0]: # Workaround when MS Access give [(None, None, None)] if keyword not found
-                tableprint(options, 2, tableName='Package options', itemize=0)
-                choice_word = input('Your decision (number): ')
-                try:
-                    choice_index = int(choice_word)
-                    print('You choose {} ({})'.format(options[choice_index][0], options[choice_index][2]))
-                    mydb['Footprint'] = options[choice_index][0]
-                    mydb['Footprint_Path'] = options[choice_index][1]
-                    mydb['Footprint_Ref'] = options[choice_index][0]
-                    mydb['PackageDescription'] = options[choice_index][2]
-                except:
-                    print('No such option')
+                choice_index = selection(options, 'Package options', cutColoumn=2)
+                mydb['Footprint'] = options[choice_index][0]
+                mydb['Footprint_Path'] = options[choice_index][1]
+                mydb['Footprint_Ref'] = options[choice_index][0]
+                mydb['PackageDescription'] = options[choice_index][2]
             else:
                print('Not found such package in DB Lib') 
         else:
@@ -234,7 +228,7 @@ def datasheet(mydb, octo):
     options = octo['Datasheets']
 
     if options:
-        tableprint(options, 1, tableName='Datasheet options', itemize=0)
+        tableprint(options, 1, tableName='Datasheet', itemize=0)
         is_fit = 'n'
         while is_fit != 'y':
             choice_word = input('Your decision (number): ')
