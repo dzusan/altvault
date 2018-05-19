@@ -134,11 +134,18 @@ def dialog(conn, cursor, prefill=''):
     if request:
     ### DB Lib ###
         print('Search in DB Lib ...')
-        findkey = ('%'+request+'%',)
-        cursor.execute('''SELECT `Part Number`, `Part Description`, Author, CreateDate
-                        FROM Semiconductors
-                        WHERE `Part Number` LIKE ?''',
-                        findkey)
+        findkey = ('%'+request+'%', '%'+request+'%', '%'+request+'%')
+        cursor.execute('''(SELECT `Part Number`, `Part Description`, Author, CreateDate
+                           FROM Semiconductors
+                           WHERE `Part Number` LIKE ?)
+                          UNION
+                           (SELECT `Part Number`, `Part Description`, Author, CreateDate
+                            FROM Passives
+                            WHERE `Part Number` LIKE ?)
+                          UNION
+                           (SELECT `Part Number`, `Part Description`, Author, CreateDate
+                            FROM Electromechanical
+                            WHERE `Part Number` LIKE ?)''', findkey)
         db_result = cursor.fetchall()
         if db_result:
             tableprint(db_result, 1, tableName='Found in DB Lib')
@@ -192,7 +199,7 @@ try:
         raise Exception
 
     cursor = conn.cursor()
-    cursor.execute("SELECT `Part Number` FROM Semiconductors")
+    cursor.execute("SELECT `Part Number` FROM Semiconductors") # Test query
 except Exception:
     errprint("Wrong database")
     input("Type any key for exit")

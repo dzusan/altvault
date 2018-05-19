@@ -162,6 +162,7 @@ def subclass(mydb, octo):
 
 def findcase(mydb, conn, cursor):
     print('Searching \'Case\' in Part Description ...')
+    # TODO: Search Case in Passives and Electromechanical too
     cursor.execute('SELECT Case FROM Semiconductors GROUP BY Case')
     results = cursor.fetchall()
 
@@ -201,6 +202,7 @@ def findcase(mydb, conn, cursor):
 
 def footprint(mydb, conn, cursor):
     print('Matching \'Case\' field with footprint ...')
+    # TODO: Search Case in Passives and Electromechanical too
     query = '''SELECT `Footprint Ref`, MAX(`Footprint Path`), MAX(`PackageDescription`)
                FROM Semiconductors
                WHERE `Case` LIKE ?
