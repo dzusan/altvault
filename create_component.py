@@ -38,7 +38,7 @@ def select_author():
                         if os.path.isdir(glob_path + '\\' + name)
                         and name not in illegals]
     
-    return selection(possible_authors, 'Author')
+    return selection(possible_authors, 'Author', mandatory = True)
 
 
 def add_rec(conn, cursor, info):
@@ -55,7 +55,7 @@ def add_rec(conn, cursor, info):
     filler.subclass(field, info)
     if not field['Component_Kind']:
         print('Mandatory field \'Component Kind\' not found')
-        field['Component_Kind'] = selection(DBstructure.tables, 'Component Kind')
+        field['Component_Kind'] = selection(DBstructure.tables, 'Component Kind', mandatory = True)
 
     if not field['Case']: # Another way to find 'Case'
         print('\'Case\' field is not in subclass')

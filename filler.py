@@ -64,7 +64,7 @@ def subclass(mydb, octo):
         mydb['Voltage'] = octo['<Voltage Rating (DC)>'] if '<Voltage Rating (DC)>' in octo.keys() else None
         mydb['Component_Kind'] = 'Passives'
 
-    if 'Integrated Circuits (ICs)' in octo['Categories']:
+    if 'Integrated Circuits (ICs)' in octo['Categories'] or 'Sensors' in octo['Categories']:
         mydb['Comment'] = '=Device'
         mydb['Device'] = octo['Part Number']
         if '<Case/Package>' in octo.keys():
@@ -215,10 +215,13 @@ def footprint(mydb, conn, cursor):
         if options:
             if options[0][0]: # Workaround when MS Access give [(None, None, None)] if keyword not found
                 choice_item = selection(options, 'Package options', cutColoumn=2)
-                mydb['Footprint'] = choice_item[0]
-                mydb['Footprint_Path'] = choice_item[1]
-                mydb['Footprint_Ref'] = choice_item[0]
-                mydb['PackageDescription'] = choice_item[2]
+                if choice_item:
+                    mydb['Footprint'] = choice_item[0]
+                    mydb['Footprint_Path'] = choice_item[1]
+                    mydb['Footprint_Ref'] = choice_item[0]
+                    mydb['PackageDescription'] = choice_item[2]
+                else:
+                    return
             else:
                print('Not found such package in DB Lib') 
         else:

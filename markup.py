@@ -64,7 +64,7 @@ def tableprint(noModifydata, cutColoumn, tableName = '', itemize=-1, initCol=0, 
     print(table.table)
 
 
-def selection(options, selectionName, cutColoumn = 1):
+def selection(options, selectionName, cutColoumn = 1, mandatory = False):
     noModifydata = []
     if len(options[0][0]) == 1:
         for item in options:
@@ -77,7 +77,13 @@ def selection(options, selectionName, cutColoumn = 1):
     
     choice_index = 0
     while True:
-        choice_word = fillinput('Your decision (number): ', '1')        
+        if mandatory:
+            choice_word = fillinput('Your decision (mandatory, number): ', '1')
+        else:
+            choice_word = fillinput('Your decision (number or \'q\' to qiut): ', '1')
+            if choice_word == 'q':
+                return
+        
         try:
             choice_index = int(choice_word)
             if choice_index > 0:
