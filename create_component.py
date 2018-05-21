@@ -74,10 +74,10 @@ def add_rec(conn, cursor, info):
 
     edit_flag = False
     is_edit = None
-    while is_edit != 'n':        
+    while is_edit != 'q':        
         field_edit = None
-        is_edit = fillinput('Do you want to edit any field? (index,n): ', 'n')
-        if is_edit == 'n':
+        is_edit = input('Field number to edit (number, \'q\' to quit): ')
+        if is_edit == 'q':
             break
         else:
             try:
@@ -88,7 +88,7 @@ def add_rec(conn, cursor, info):
                 else:
                     value_edit = fillinput('Type value: ', field[field_edit])
                 field[field_edit] = value_edit
-                print('Field successfully changed')
+                tableprint(((is_edit, field_edit, value_edit),), 2)
                 edit_flag = True
             except:
                 print('No such field')
@@ -149,6 +149,9 @@ def dialog(conn, cursor, prefill=''):
         db_result = cursor.fetchall()
         if db_result:
             tableprint(db_result, 1, tableName='Found in DB Lib')
+            # TODO: Make possible continue to search in octopart even if 
+            #       part found in db. For patrial names like 
+            #       '84952-4' part of '2-84952-4'
             return request
         else:
             print('Not found in DB Lib')

@@ -78,9 +78,9 @@ def selection(options, selectionName, cutColoumn = 1, mandatory = False):
     choice_index = 0
     while True:
         if mandatory:
-            choice_word = fillinput('Your decision (mandatory, number): ', '1')
+            choice_word = input('Your decision (mandatory, number): ')
         else:
-            choice_word = fillinput('Your decision (number or \'q\' to qiut): ', '1')
+            choice_word = input('Your decision (number or \'q\' to qiut): ')
             if choice_word == 'q':
                 return
         

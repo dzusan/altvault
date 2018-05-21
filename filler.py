@@ -27,7 +27,7 @@ def spec(mydb, octo):
     mydb['Pin_Count'] = octo['<Number of Pins>']    if '<Number of Pins>'   in octo.keys() else None
     mydb['Status']    = octo['<Lifecycle Status>']  if '<Lifecycle Status>' in octo.keys() else None
     if '<Mounting Style>' in octo.keys():
-        if octo['<Mounting Style>'] == 'Surface Mount':
+        if 'Surface Mount' in octo['<Mounting Style>']:
             mydb['SMD'] = 'Yes'
         else:
             mydb['SMD'] = 'No'
@@ -79,15 +79,29 @@ def subclass(mydb, octo):
         mydb['Footprint_Path'] = author + '\\PcbLib\\ICs And Semiconductors SMD.PcbLib' # Default
     
     if 'Connectors ' in octo['Categories']:  # Yeah, it's weird, but in Octopart 'Connectors ' with whitespase
-        mydb['Part_Number'  ] = mydb['Manufacturer'] + '_' + octo['Part Number']
-        mydb['Footprint_Ref'] = mydb['Manufacturer'] + '_' + octo['Part Number']
-        mydb['Footprint'    ] = mydb['Manufacturer'] + '_' + octo['Part Number']
+        mydb['Part_Number'  ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
+        mydb['Footprint_Ref'] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
+        mydb['Footprint'    ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
         mydb['Component_Kind'] = 'Electromechanical'      
         mydb['Table'] = mydb['Manufacturer']
-        mydb['Library_Ref'] = '8Pin'
         mydb['PackageDescription'] = octo['Part Description']
-        mydb['Library_Path'] = author + '\\SchLib\\Connectors GOST.SchLib' # Default
-        mydb['Footprint_Path'] = author + '\\PcbLib\\Connectors THD.PcbLib' # Default
+        octo['<Number of Contacts>'] + '8Pin'
+        mydb['Library_Path'] = author + '\\SchLib\\Connectors GOST.SchLib' # Default      
+        if mydb['SMD'] == 'Yes':
+            mydb['Footprint_Path'] = author + '\\PcbLib\\Connectors SMD.PcbLib' # Default
+        else:
+            mydb['Footprint_Path'] = author + '\\PcbLib\\Connectors THD.PcbLib' # Default  
+        if '<Number of Contacts>' in octo.keys():
+            mydb['Library_Ref'] = octo['<Number of Contacts>'] + 'Pin'
+            mydb['Pin_Count'] = octo['<Number of Contacts>']
+        if '<Number of Positions>' in octo.keys():
+            mydb['Library_Ref'] = octo['<Number of Positions>'] + 'Pin'
+            mydb['Pin_Count'] = octo['<Number of Positions>']
+        if '<Color>' in octo.keys():
+            mydb['Color'] = octo['<Color>']
+        if '<Housing Color>' in octo.keys():
+            mydb['Color'] = octo['<Housing Color>']
+
 
     ### MIDDLE LEVEL ###
 
