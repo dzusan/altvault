@@ -39,6 +39,8 @@ def spec(mydb, octo):
     mydb['Library_Ref'] = octo['Part Number']
     mydb['Footprint_Ref'] = octo['Part Number']
     mydb['Footprint'] = octo['Part Number']
+    mydb['Library_Path'] = author + '\\SchLib\\' + octo['Part Number'] + '.SchLib'
+    mydb['Footprint_Path'] = author + '\\PcbLib\\' + octo['Part Number'] + '.PcbLib'
     
     # ??? fields
     # mydb['Component_Kind'] = 'Standard'
