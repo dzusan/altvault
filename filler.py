@@ -62,7 +62,8 @@ def subclass(mydb, octo):
     if ('Passive Components' in octo['Categories'] or
         'Varistors'          in octo['Categories']):
         mydb['Comment'] = '=Value'
-        mydb['Case'] = octo['<Case/Package>'] if '<Case/Package>' in octo.keys() else None
+        # Cut Case/Package as [-4:] if it's like '3216, 1206'
+        mydb['Case'] = octo['<Case/Package>'][-4:] if '<Case/Package>' in octo.keys() else None
         mydb['Voltage'] = octo['<Voltage Rating (DC)>'] + 'DC' if '<Voltage Rating (DC)>' in octo.keys() else None
         mydb['Component_Kind'] = 'Passives'
 
@@ -127,6 +128,31 @@ def subclass(mydb, octo):
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']  
     
     if 'Resistors' in octo['Categories']:
+        if (mydb['Case'] and
+            '<Resistance>'           in octo.keys() and
+            '<Resistance Tolerance>' in octo.keys() and
+            '<Power Rating>'         in octo.keys()):
+            resSplitted = octo['<Resistance>'].split(' ')
+            if len(resSplitted[1]) == 1:
+                expMod = 'R'
+            elif resSplitted[1][0] == 'm': # Milli-ohms not Mega
+                expMod = 'milli'
+            else:
+                expMod = resSplitted[1][0].upper()
+
+            if expMod == 'milli':
+                resVal = float(resSplitted[0]) * 10**(-3)
+                resStr = str(resVal)
+                resMant = resStr.split('.')
+                res = '0R' + resMant[1]
+            else:
+                res = resSplitted[0].replace('.', expMod)
+
+            powSplit = octo['<Power Rating>'].split(' ')
+            power = powSplit[0].strip('0').strip('.') + 'W'
+
+            mydb['Part_Number'] = 'R{}_{}_{}_{}_{}'.format(mydb['Case'], res, octo['<Resistance Tolerance>'][1:], power, octo['Part Number'])
+
         mydb['Table'] = 'Resistors'
         mydb['Sim_Model_Name'] = 'RES'
         mydb['Sim_SubKind'] = 'Resistor'        
@@ -134,10 +160,10 @@ def subclass(mydb, octo):
         mydb['Sim_Netlist'] = '@DESIGNATOR %1 %2 @VALUE'
         if '<Resistance>' in octo.keys():
             value = octo['<Resistance>']
-            value = value.upper()
+            # value = value.upper()
             value = value.replace(' ', '')
             value = value.replace('Ω', '')
-            value = value.replace('M', 'Meg')
+            # value = value.replace('M', 'Meg')
             mydb['Value'] = value
         else:
             mydb['Value'] = None
