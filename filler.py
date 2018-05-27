@@ -59,11 +59,11 @@ def subclass(mydb, octo):
     
     ### LOWER LEVEL ###
 
-    if 'Passive Components' in octo['Categories']:
+    if ('Passive Components' in octo['Categories'] or
+        'Varistors'          in octo['Categories']):
         mydb['Comment'] = '=Value'
         mydb['Case'] = octo['<Case/Package>'] if '<Case/Package>' in octo.keys() else None
-        mydb['Sim_Netlist'] = '@DESIGNATOR %1 %2 @VALUE'
-        mydb['Voltage'] = octo['<Voltage Rating (DC)>'] if '<Voltage Rating (DC)>' in octo.keys() else None
+        mydb['Voltage'] = octo['<Voltage Rating (DC)>'] + 'DC' if '<Voltage Rating (DC)>' in octo.keys() else None
         mydb['Component_Kind'] = 'Passives'
 
     if 'Integrated Circuits (ICs)' in octo['Categories'] or 'Sensors' in octo['Categories']:
@@ -108,11 +108,11 @@ def subclass(mydb, octo):
     ### MIDDLE LEVEL ###
 
     if 'Capacitors' in octo['Categories']:
-        mydb['Library_Path'] = 'SchLib\\Capacitors.SchLib'
         mydb['Table'] = 'Capacitors'
         mydb['Sim_Model_Name'] = 'CAP'
         mydb['Sim_SubKind'] = 'Capacitor'
-        mydb['Sim_Spice_Prefix'] = 'C'
+        mydb['Sim_Spice_Prefix'] = 'C'        
+        mydb['Sim_Netlist'] = '@DESIGNATOR %1 %2 @VALUE'
         if '<Capacitance>' in octo.keys():
             value = octo['<Capacitance>']
             value = value.replace(' ', '')
@@ -122,15 +122,16 @@ def subclass(mydb, octo):
         else:
             mydb['Value'] = None
         mydb['Tolerance'] = octo['<Capacitance Tolerance>']  if '<Capacitance Tolerance>' in octo.keys() else None
-        mydb['Library_Path'] = 'CERN\\SchLib\\Capacitors.SchLib' # Default
+        mydb['Library_Path'] = 'CERN\\SchLib\\Capacitors.SchLib'
         mydb['Footprint_Path'] = author + '\\PcbLib\\Capacitors THD.PcbLib' # Default
+        mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']  
     
     if 'Resistors' in octo['Categories']:
-        mydb['Library_Path'] = 'SchLib\\Resistors.SchLib'
         mydb['Table'] = 'Resistors'
         mydb['Sim_Model_Name'] = 'RES'
         mydb['Sim_SubKind'] = 'Resistor'        
         mydb['Sim_Spice_Prefix'] = 'R'
+        mydb['Sim_Netlist'] = '@DESIGNATOR %1 %2 @VALUE'
         if '<Resistance>' in octo.keys():
             value = octo['<Resistance>']
             value = value.upper()
@@ -150,8 +151,19 @@ def subclass(mydb, octo):
                 mydb['Library_Ref'] = 'Resistor - 5%'
         else:
             mydb['Library_Ref'] = None
-        mydb['Library_Path'] = 'CERN\\SchLib\\Resistors.SchLib' # Default
-        mydb['Footprint_Path'] = author + '\\PcbLib\\Resistors SMD.PcbLib' # Default
+        mydb['Library_Path'] = 'CERN\\SchLib\\Resistors.SchLib'
+        mydb['Footprint_Path'] = 'CERN\\PcbLib\\Resistors SMD.PcbLib' # Default  
+        mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
+
+    if 'Varistors' in octo['Categories']:
+        mydb['Part_Number'] = 'VAR_' + mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
+        mydb['Table'] = 'Thermistors And Varistors'
+        mydb['Value']   = octo['<Voltage Rating (DC)>'] + 'DC' if '<Voltage Rating (DC)>' in octo.keys() else None
+        mydb['Library_Path'] = 'CERN\SchLib\Resistors.SchLib'
+        mydb['Library_Ref'] = 'Varistor'
+        mydb['Footprint_Path'] = 'CERN\\PcbLib\\Thermistors And Varistors.PcbLib' # Default
+        mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
+        
 
     ### UPPER LEVEL ###
 
