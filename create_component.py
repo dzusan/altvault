@@ -60,11 +60,14 @@ def add_rec(conn, cursor, info):
     if not field['Case']: # Another way to find 'Case'
         print('\'Case\' field is not in subclass')
         filler.findcase(field, conn, cursor)
-        
+
+    # Choose the datasheet
+    # It's preferable to call filler.subclass() before it 
+    # to fill the 'Component_Kind' and 'Table'
+    filler.datasheet(field, info)
     # It's preferable to call filler.subclass() before it to fill the 'Case'
     filler.footprint(field, conn, cursor)
-    # Choose the datasheet (and preferable to call filler.subclass() before it to fill the 'Table')
-    filler.datasheet(field, info)
+
 
     field_keys = list(field)
     displayArray = []
