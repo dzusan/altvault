@@ -60,11 +60,12 @@ def subclass(mydb, octo):
     ### LOWER LEVEL ###
 
     if ('Passive Components' in octo['Categories'] or
+        'Fuses'              in octo['Categories'] or
         'Varistors'          in octo['Categories']):
         mydb['Comment'] = '=Value'
         # Cut Case/Package as [-4:] if it's like '3216, 1206'
         mydb['Case'] = octo['<Case/Package>'][-4:] if '<Case/Package>' in octo.keys() else None
-        mydb['Voltage'] = octo['<Voltage Rating (DC)>'] + 'DC' if '<Voltage Rating (DC)>' in octo.keys() else None
+        mydb['Voltage'] = octo['<Voltage Rating (DC)>'].replace(' ', '') + 'DC' if '<Voltage Rating (DC)>' in octo.keys() else None
         mydb['Component_Kind'] = 'Passives'
 
     if 'Integrated Circuits (ICs)' in octo['Categories'] or 'Sensors' in octo['Categories']:
@@ -184,10 +185,23 @@ def subclass(mydb, octo):
     if 'Varistors' in octo['Categories']:
         mydb['Part_Number'] = 'VAR_' + mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
         mydb['Table'] = 'Thermistors And Varistors'
-        mydb['Value']   = octo['<Voltage Rating (DC)>'] + 'DC' if '<Voltage Rating (DC)>' in octo.keys() else None
-        mydb['Library_Path'] = 'CERN\SchLib\Resistors.SchLib'
+        mydb['Value']   = octo['<Voltage Rating (DC)>'].replace(' ', '') + 'DC' if '<Voltage Rating (DC)>' in octo.keys() else None
+        mydb['Library_Path'] = 'CERN\\SchLib\\Resistors.SchLib'
         mydb['Library_Ref'] = 'Varistor'
         mydb['Footprint_Path'] = 'CERN\\PcbLib\\Thermistors And Varistors.PcbLib' # Default
+        mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
+
+    if 'Fuses' in octo['Categories']:
+        if re.search('[a-zA-Z]', mydb['Case']):
+            mydb['Part_Number'] = 'FUSR' + '_'
+        else:
+            mydb['Part_Number'] = 'FUS' + mydb['Case'] + '_'
+        mydb['Part_Number'] += mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
+        mydb['Table'] = 'Fuses'
+        mydb['Value']   = octo['<Current Rating>'].replace(' ', '') if '<Current Rating>' in octo.keys() else None
+        mydb['Library_Path'] = 'CERN\\SchLib\\Fuses.SchLib'
+        mydb['Library_Ref'] = 'Fuse'
+        mydb['Footprint_Path'] = 'CERN\\PcbLib\\Fuses.PcbLib' # Default
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
         
 
@@ -259,6 +273,12 @@ def findcase(mydb, conn, cursor):
 
 def footprint(mydb, conn, cursor):
     print('Matching \'Case\' field with footprint ...')
+
+    # TODO: Search mydb['Case'] not only in 'Case' field in DB.
+    # For example FUSC_BOURNS_SF-1206S in CERN\PcbLib\Fuses.PcbLib
+    # but not contains any reflection in 'Case' coloumn
+    # CHECK: FUS1206_BOURNS_SF-1206S500-2
+
     query = '''(SELECT `Footprint Ref`, MAX(`Footprint Path`), MAX(`PackageDescription`)
                 FROM Semiconductors
                 WHERE `Case` LIKE ?
