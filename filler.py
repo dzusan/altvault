@@ -268,6 +268,8 @@ def findcase(mydb, conn, cursor):
         longestMatch = max(found_hopeless, key=len)        
         print('Found (hopeless):', longestMatch)
         mydb['Case'] = longestMatch
+    else:
+        print('Not found available packages in Part Description')
 
 
 
@@ -319,6 +321,7 @@ def footprint(mydb, conn, cursor):
 
 
 def datasheet(mydb, octo):
+    print()
     options = octo['Datasheets']
 
     if options:
