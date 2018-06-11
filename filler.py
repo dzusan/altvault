@@ -68,7 +68,9 @@ def subclass(mydb, octo):
         mydb['Voltage'] = octo['<Voltage Rating (DC)>'].replace(' ', '') + 'DC' if '<Voltage Rating (DC)>' in octo.keys() else None
         mydb['Component_Kind'] = 'Passives'
 
-    if 'Integrated Circuits (ICs)' in octo['Categories'] or 'Sensors' in octo['Categories']:
+    if ('Integrated Circuits (ICs)' in octo['Categories'] or
+        'Sensors' in octo['Categories'] or
+        'Discrete Semiconductors' in octo['Categories']):
         mydb['Comment'] = '=Device'
         mydb['Device'] = octo['Part Number']
         if '<Case/Package>' in octo.keys():
@@ -203,6 +205,11 @@ def subclass(mydb, octo):
         mydb['Library_Ref'] = 'Fuse'
         mydb['Footprint_Path'] = 'CERN\\PcbLib\\Fuses.PcbLib' # Default
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
+
+    if 'Transistors' in octo['Categories']:
+        mydb['Table'] = 'Transistors'
+        mydb['Library_Path'] = author + '\\SchLib\\Transistors.SchLib'
+        mydb['Pin_Count'] = '3' if not mydb['Pin_Count'] else mydb['Pin_Count']
         
 
     ### UPPER LEVEL ###
