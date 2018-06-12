@@ -131,10 +131,12 @@ def subclass(mydb, octo):
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']  
     
     if 'Resistors' in octo['Categories']:
-        if (mydb['Case'] and
-            '<Resistance>'           in octo.keys() and
-            '<Resistance Tolerance>' in octo.keys() and
-            '<Power Rating>'         in octo.keys()):
+        mydb['Part_Number'] = 'R'
+
+        if mydb['Case']:
+            mydb['Part_Number'] += mydb['Case']
+
+        if '<Resistance>' in octo.keys():
             resSplitted = octo['<Resistance>'].split(' ')
             if len(resSplitted[1]) == 1:
                 expMod = 'R'
@@ -150,28 +152,19 @@ def subclass(mydb, octo):
                 res = '0R' + resMant[1]
             else:
                 res = resSplitted[0].replace('.', expMod)
+            
+            mydb['Part_Number'] += '_' + res
 
-            powSplit = octo['<Power Rating>'].split(' ')
-            power = powSplit[0].strip('0').strip('.') + 'W'
-
-            mydb['Part_Number'] = 'R{}_{}_{}_{}_{}'.format(mydb['Case'], res, octo['<Resistance Tolerance>'][1:], power, octo['Part Number'])
-
-        mydb['Table'] = 'Resistors'
-        mydb['Sim_Model_Name'] = 'RES'
-        mydb['Sim_SubKind'] = 'Resistor'        
-        mydb['Sim_Spice_Prefix'] = 'R'
-        mydb['Sim_Netlist'] = '@DESIGNATOR %1 %2 @VALUE'
-        if '<Resistance>' in octo.keys():
             value = octo['<Resistance>']
-            # value = value.upper()
             value = value.replace(' ', '')
             value = value.replace('Ω', '')
-            # value = value.replace('M', 'Meg')
             mydb['Value'] = value
         else:
-            mydb['Value'] = None
-        mydb['Tolerance'] = octo['<Resistance Tolerance>'] if '<Resistance Tolerance>' in octo.keys() else None
+            mydb['Value'] = None        
+        
         if '<Resistance Tolerance>' in octo.keys():
+            mydb['Part_Number'] += '_' + octo['<Resistance Tolerance>'][1:]
+            mydb['Tolerance'] = octo['<Resistance Tolerance>']
             if octo['<Resistance Tolerance>'] == '±0.1%':
                 mydb['Library_Ref'] = 'Resistor - 0.1%'
             elif octo['<Resistance Tolerance>'] == '±1%':
@@ -180,6 +173,19 @@ def subclass(mydb, octo):
                 mydb['Library_Ref'] = 'Resistor - 5%'
         else:
             mydb['Library_Ref'] = None
+            
+        if '<Power Rating>' in octo.keys():
+            powSplit = octo['<Power Rating>'].split(' ')
+            power = powSplit[0].strip('0').strip('.') + 'W'
+            mydb['Part_Number'] += '_' + power
+
+        mydb['Part_Number'] += '_' + octo['Part Number']
+
+        mydb['Table'] = 'Resistors'
+        mydb['Sim_Model_Name'] = 'RES'
+        mydb['Sim_SubKind'] = 'Resistor'        
+        mydb['Sim_Spice_Prefix'] = 'R'
+        mydb['Sim_Netlist'] = '@DESIGNATOR %1 %2 @VALUE'
         mydb['Library_Path'] = 'CERN\\SchLib\\Resistors.SchLib'
         mydb['Footprint_Path'] = 'CERN\\PcbLib\\Resistors SMD.PcbLib' # Default  
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
