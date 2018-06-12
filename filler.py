@@ -258,6 +258,7 @@ def subclass(mydb, octo):
     if 'Ceramic Capacitors' in octo['Categories']:
         mydb['Library_Ref'] = 'Capacitor - non polarized'
         mydb['TC'] = octo['<Dielectric Characteristic>'] if '<Dielectric Characteristic>' in octo.keys() else None
+        mydb['Part_Number'] = 'CC{}_{}_{}_{}_{}'.format(mydb['Case'], mydb['Value'].upper(), mydb['Voltage'], mydb['Tolerance'], mydb['TC'])
 
     if 'Aluminum Electrolytic Capacitors' in octo['Categories']:
         mydb['Library_Ref'] = 'Capacitor - polarized'
