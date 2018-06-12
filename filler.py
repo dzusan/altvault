@@ -190,6 +190,41 @@ def subclass(mydb, octo):
         mydb['Footprint_Path'] = 'CERN\\PcbLib\\Resistors SMD.PcbLib' # Default  
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
 
+    if 'Inductors' in octo['Categories']:
+        mydb['Part_Number'] = 'IND'
+
+        if mydb['Case']:
+            mydb['Part_Number'] += mydb['Case']
+
+        if '<Inductance>' in octo.keys():
+            ind = octo['<Inductance>']
+            if '.0 ' in ind:
+                ind = ind.replace('.0 ', '')
+            ind = ind.replace(' ', '')
+            ind = ind.replace('µ', 'u')         
+            mydb['Value'] = ind   
+            ind = ind.upper()
+            mydb['Part_Number'] += '_' + ind
+        else:
+            mydb['Value'] = None        
+        
+        if '<Inductance Tolerance>' in octo.keys():
+            mydb['Part_Number'] += '_' + octo['<Inductance Tolerance>'][1:]
+
+        mydb['Part_Number'] += '_' + octo['Manufacturer'].upper() + '_' + octo['Part Number']
+
+        if mydb['SMD'] =='Yes':
+            mydb['Table'] = 'Inductors SMD'
+        else:
+            mydb['Table'] = 'Inductors'
+
+        mydb['Library_Path'] = 'CERN\\SchLib\\Inductors & Transformers.SchLib'
+        mydb['Library_Ref'] = 'Inductor'
+        mydb['Footprint_Path'] = 'CERN\\PcbLib\\Inductors SMD.PcbLib' # Default 
+        mydb['Footprint_Ref'] = 'IND_' + octo['Manufacturer'].upper() + '_' + octo['Part Number']
+        mydb['Footprint'] = 'IND_' + octo['Manufacturer'].upper() + '_' + octo['Part Number']
+        mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
+
     if 'Varistors' in octo['Categories']:
         mydb['Part_Number'] = 'VAR_' + mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
         mydb['Table'] = 'Thermistors And Varistors'
