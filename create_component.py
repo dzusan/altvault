@@ -57,6 +57,8 @@ def add_rec(conn, cursor, info):
         print('Mandatory field \'Component Kind\' not found')
         field['Component_Kind'] = selection(DBstructure.tables, 'Component Kind', mandatory = True)
 
+    # TODO: Fill the fields based on 'Component_Kind' like Comment =Device or =Value
+
     if not field['Case']: # Another way to find 'Case'
         print('\'Case\' field is not in subclass')
         filler.findcase(field, conn, cursor)

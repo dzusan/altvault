@@ -128,6 +128,7 @@ def subclass(mydb, octo):
         mydb['Tolerance'] = octo['<Capacitance Tolerance>']  if '<Capacitance Tolerance>' in octo.keys() else None
         mydb['Library_Path'] = 'CERN\\SchLib\\Capacitors.SchLib'
         mydb['Footprint_Path'] = author + '\\PcbLib\\Capacitors THD.PcbLib' # Default
+        # TODO: Or SMD too
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']  
     
     if 'Resistors' in octo['Categories']:
@@ -251,6 +252,8 @@ def subclass(mydb, octo):
         mydb['Table'] = 'Transistors'
         mydb['Library_Path'] = author + '\\SchLib\\Transistors.SchLib'
         mydb['Pin_Count'] = '3' if not mydb['Pin_Count'] else mydb['Pin_Count']
+
+    # TODO: Add diodes
         
 
     ### UPPER LEVEL ###
@@ -258,7 +261,39 @@ def subclass(mydb, octo):
     if 'Ceramic Capacitors' in octo['Categories']:
         mydb['Library_Ref'] = 'Capacitor - non polarized'
         mydb['TC'] = octo['<Dielectric Characteristic>'] if '<Dielectric Characteristic>' in octo.keys() else None
-        mydb['Part_Number'] = 'CC{}_{}_{}_{}_{}'.format(mydb['Case'], mydb['Value'].upper(), mydb['Voltage'], mydb['Tolerance'], mydb['TC'])
+        mydb['Part_Number'] = 'CC'
+
+        if mydb['Case']:
+            mydb['Part_Number'] += mydb['Case']
+
+        if '<Capacitance>' in octo.keys():
+            cap = octo['<Capacitance>']
+            if '.0 ' in cap:
+                cap = cap.replace('.0 ', '')
+            cap = cap.replace(' ', '')
+            cap = cap.replace('µ', 'u')         
+            mydb['Value'] = cap   
+            cap = cap.upper()
+            mydb['Part_Number'] += '_' + cap
+        else:
+            mydb['Value'] = None    
+
+        if '<Voltage Rating (DC)>' in octo.keys():
+            vol = octo['<Voltage Rating (DC)>']
+            if '.0 ' in vol:
+                vol = vol.replace('.0 ', '')
+            vol = vol.replace(' ', '')  
+            mydb['Voltage'] = vol
+            vol = vol.upper()
+            mydb['Part_Number'] += '_' + vol
+        else:
+            mydb['Value'] = None    
+
+        if mydb['Tolerance']:
+            mydb['Part_Number'] += '_' + mydb['Tolerance'].replace('±', '')
+
+        if mydb['TC']:
+            mydb['Part_Number'] += '_' + mydb['TC']
 
     if 'Aluminum Electrolytic Capacitors' in octo['Categories']:
         mydb['Library_Ref'] = 'Capacitor - polarized'
