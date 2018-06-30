@@ -108,6 +108,10 @@ def subclass(mydb, octo):
         if '<Housing Color>' in octo.keys():
             mydb['Color'] = octo['<Housing Color>']
 
+    if 'Electromechanical' in octo['Categories']:
+        mydb['Component_Kind'] = 'Electromechanical'
+
+
 
     ### MIDDLE LEVEL ###
 
@@ -252,6 +256,15 @@ def subclass(mydb, octo):
         mydb['Table'] = 'Transistors'
         mydb['Library_Path'] = author + '\\SchLib\\Transistors.SchLib'
         mydb['Pin_Count'] = '3' if not mydb['Pin_Count'] else mydb['Pin_Count']
+
+    if 'Switches' in octo['Categories'] or 'Encoders' in octo['Categories']:
+        mydb['Part_Number'] = 'SW_' + mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
+        mydb['Table'] = 'Switches'
+        mydb['Library_Path'] = 'CERN\\SchLib\\Switches.SchLib'
+        mydb['Library_Ref'] = 'SW 1x SPST DIP Switch' # Default
+        mydb['Footprint_Path'] = author + '\\PcbLib\\Switches.PcbLib' # Default
+        mydb['Footprint_Ref'] = mydb['Part_Number']
+        mydb['Footprint'] = mydb['Part_Number']
 
     # TODO: Add diodes
         
