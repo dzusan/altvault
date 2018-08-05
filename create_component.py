@@ -13,6 +13,7 @@ from markup import *
 
 
 def search_dialog(keyword):
+    # TODO: Fix breaking program if not valid choice
     result = octopart.search(keyword)
     print(result[0][0], result[0][1])
     if result[0][1] == 0:

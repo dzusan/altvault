@@ -84,13 +84,22 @@ def subclass(mydb, octo):
         mydb['Library_Path'] = author + '\\SchLib\\SOC_GOST.SchLib' # Default
         mydb['Footprint_Path'] = author + '\\PcbLib\\ICs And Semiconductors SMD.PcbLib' # Default
     
-    if 'Connectors ' in octo['Categories']:  # Yeah, it's weird, but in Octopart 'Connectors ' with whitespase
-        mydb['Part_Number'  ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
-        mydb['Footprint_Ref'] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
-        mydb['Footprint'    ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
-        mydb['Component_Kind'] = 'Electromechanical'      
-        mydb['Table'] = mydb['Manufacturer']
-        mydb['PackageDescription'] = octo['Part Description']
+    if ('Connectors' in octo['Categories'] or
+        'Connectors ' in octo['Categories']): # Yeah, it's weird, but in Octopart 'Connectors ' can be with whitespase
+        mydb['Part_Number'        ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
+        mydb['Footprint_Ref'      ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
+        mydb['Footprint'          ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
+        mydb['Component_Kind'     ] = 'Electromechanical'
+        mydb['Table'              ] = mydb['Manufacturer']
+        mydb['PackageDescription' ] = octo['Part Description']
+
+        mydb['Comment'] = '=Value'
+        if octo['Part Description']:
+            if ' CONNECTOR' in octo['Part Description']:
+                mydb['Value'] = octo['Part Description'].upper().split(' CONNECTOR')[0]
+        else:
+            mydb['Value'] = octo['Part Number']
+
         octo['<Number of Contacts>'] + '8Pin'
         mydb['Library_Path'] = author + '\\SchLib\\Connectors GOST.SchLib' # Default      
         if mydb['SMD'] == 'Yes':
@@ -135,11 +144,34 @@ def subclass(mydb, octo):
         # TODO: Or SMD too
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']  
     
-    if 'Resistors' in octo['Categories']:
-        mydb['Part_Number'] = 'R'
-
-        if mydb['Case']:
-            mydb['Part_Number'] += mydb['Case']
+    if 'Resistors' in octo['Categories'] or 'Resistor Arrays' in octo['Categories']:
+        if 'Resistor Arrays' in octo['Categories']:
+            mydb['Table'] = 'Resistor Networks SMD'
+            mydb['Footprint_Path'] = 'CERN\\PcbLib\\Networks SMD.PcbLib'
+            mydb['Case'] = octo['Part Number'].split('-')[0].split(' ')[0]
+            mydb['Part_Number'] = 'RN'
+            if '<Number of Contacts>' in octo.keys():
+                if '8' in octo['<Number of Contacts>']:
+                    mydb['Library_Ref'] = 'RN DIL8_4xR_Isolated_5%'
+                elif '16' in octo['<Number of Contacts>']:
+                    mydb['Library_Ref'] = 'RN DIL16_8xR_Isolated_5%'
+                else:
+                    mydb['Library_Ref'] = None
+        else:
+            mydb['Table'] = 'Resistors'
+            mydb['Footprint_Path'] = 'CERN\\PcbLib\\Resistors SMD.PcbLib'
+            mydb['Part_Number'] = 'R'
+            if '<Resistance Tolerance>' in octo.keys():
+                if octo['<Resistance Tolerance>'] == '±0.1%':
+                    mydb['Library_Ref'] = 'Resistor - 0.1%'
+                elif octo['<Resistance Tolerance>'] == '±1%':
+                    mydb['Library_Ref'] = 'Resistor - 1%'
+                elif octo['<Resistance Tolerance>'] == '±5%':
+                    mydb['Library_Ref'] = 'Resistor - 5%'
+                else:
+                    mydb['Library_Ref'] = None
+            if mydb['Case']:
+                mydb['Part_Number'] += mydb['Case']
 
         if '<Resistance>' in octo.keys():
             resSplitted = octo['<Resistance>'].split(' ')
@@ -170,29 +202,21 @@ def subclass(mydb, octo):
         if '<Resistance Tolerance>' in octo.keys():
             mydb['Part_Number'] += '_' + octo['<Resistance Tolerance>'][1:]
             mydb['Tolerance'] = octo['<Resistance Tolerance>']
-            if octo['<Resistance Tolerance>'] == '±0.1%':
-                mydb['Library_Ref'] = 'Resistor - 0.1%'
-            elif octo['<Resistance Tolerance>'] == '±1%':
-                mydb['Library_Ref'] = 'Resistor - 1%'
-            elif octo['<Resistance Tolerance>'] == '±5%':
-                mydb['Library_Ref'] = 'Resistor - 5%'
-        else:
-            mydb['Library_Ref'] = None
             
         if '<Power Rating>' in octo.keys():
-            powSplit = octo['<Power Rating>'].split(' ')
-            power = powSplit[0].strip('0').strip('.') + 'W'
-            mydb['Part_Number'] += '_' + power
+            mydb['Power'] = octo['<Power Rating>']
+            if 'm' not in octo['<Power Rating>']: # Not add milli-watts
+                powSplit = octo['<Power Rating>'].split(' ')
+                power = powSplit[0].strip('0').strip('.') + 'W'
+                mydb['Part_Number'] += '_' + power
 
         mydb['Part_Number'] += '_' + octo['Part Number']
 
-        mydb['Table'] = 'Resistors'
         mydb['Sim_Model_Name'] = 'RES'
         mydb['Sim_SubKind'] = 'Resistor'        
         mydb['Sim_Spice_Prefix'] = 'R'
         mydb['Sim_Netlist'] = '@DESIGNATOR %1 %2 @VALUE'
         mydb['Library_Path'] = 'CERN\\SchLib\\Resistors.SchLib'
-        mydb['Footprint_Path'] = 'CERN\\PcbLib\\Resistors SMD.PcbLib' # Default  
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
 
     if 'Inductors' in octo['Categories']:
@@ -420,6 +444,8 @@ def footprint(mydb, conn, cursor):
 def datasheet(mydb, octo):
     print()
     options = octo['Datasheets']
+
+    # TODO: Fix mess with the cossing (y,n)...
 
     if options:
         tableprint(options, 1, tableName='Datasheet', itemize=0)
