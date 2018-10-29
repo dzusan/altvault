@@ -1,7 +1,13 @@
 ## AltVault - An Alternative Altium Vault
 
-Python scripts to servise large DBLib. DataBase based on CERN library and
-contains about 7500 components.
+Python scripts to servise large DBLib for Altium Designer. DataBase based on
+CERN library and contains about 13000 components.
+
+### Toolkit
+* Python 3
+* [Octopart API](https://octopart.com/api/home) to search and add component
+* [CLI](https://en.wikipedia.org/wiki/Command-line_interface "command-line interface") with tables
+* No OOP (just now)
 
 Can operate with:
 * Microsoft Access 2000-2003 (*.mdb, 32-bit)
@@ -14,7 +20,7 @@ with Altium Designer 18.
 **Copy `config.py.example` to `config.py` for proper operation! And only then
 change settings in file or replace them by command line.**
 
-### A little demo
+### A little demo (old version, capture new coming soon...)
 
 ![A little demo](demo.gif?raw=true "demo.gif")
 
@@ -35,9 +41,9 @@ script                      data base           apikey   prefill search
 ```
 
 ### DB must contain
-* Table `components`
-* At least one row
-* Following columns with data type varchar255:
+* Tables `Semiconductors`, `Passives`, `Electromechanical`
+* At least one row in each table
+* Following columns with data type varchar255 in each table:
     * Part Number [Primary Key]
     * Library Ref
     * Library Path
@@ -84,4 +90,6 @@ script                      data base           apikey   prefill search
     * Power
     * Tolerance
     * Voltage
+    * Storage Cell
+    * Storage Quantity
 
