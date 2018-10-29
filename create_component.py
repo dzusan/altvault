@@ -140,21 +140,50 @@ def dialog(conn, cursor, prefill=''):
     if request:
     ### DB Lib ###
         print('Search in DB Lib ...')
-        findkey = ('%'+request+'%', '%'+request+'%', '%'+request+'%')
-        cursor.execute('''(SELECT `Part Number`, `Part Description`, Author, CreateDate
+        db_result = []
+        idx = 0
+        findkey = '%'+request+'%'
+
+        cursor.execute('''(SELECT `Part Number`, `Part Description`, Author, CreateDate, `Storage Cell`, `Storage Quantity`
                            FROM Semiconductors
-                           WHERE `Part Number` LIKE ?)
-                          UNION
-                           (SELECT `Part Number`, `Part Description`, Author, CreateDate
+                           WHERE `Part Number` LIKE ?)''', findkey)
+
+        for item in cursor.fetchall():
+            db_result.append(['Semiconductors'])
+            for col in item:
+                db_result[idx].append(col)
+            idx += 1
+
+        cursor.execute('''(SELECT `Part Number`, `Part Description`, Author, CreateDate, `Storage Cell`, `Storage Quantity`
                             FROM Passives
-                            WHERE `Part Number` LIKE ?)
-                          UNION
-                           (SELECT `Part Number`, `Part Description`, Author, CreateDate
+                            WHERE `Part Number` LIKE ?)''', findkey)
+
+        for item in cursor.fetchall():
+            db_result.append(['Passives'])
+            for col in item:
+                db_result[idx].append(col)
+            idx += 1    
+
+        cursor.execute('''(SELECT `Part Number`, `Part Description`, Author, CreateDate, `Storage Cell`, `Storage Quantity`
                             FROM Electromechanical
                             WHERE `Part Number` LIKE ?)''', findkey)
-        db_result = cursor.fetchall()
-        if db_result:
-            tableprint(db_result, 1, tableName='Found in DB Lib')
+
+        for item in cursor.fetchall():
+            db_result.append(['Electromechanical'])
+            for col in item:
+                db_result[idx].append(col)
+            idx += 1
+
+        if idx:     
+            DBchoice = selection(db_result, 'part in DB Lib', cutColoumn = 2)
+            if DBchoice:
+                changeQuery = 'UPDATE ' + DBchoice[0] + ' SET `Storage Cell` = ?, `Storage Quantity` = ? WHERE `Part Number` LIKE ?'
+                cellChoice = fillinput('Cell: ', DBchoice[5] if DBchoice[5] else '')
+                quantityChoice = fillinput('Quantity: ', DBchoice[6] if DBchoice[6] else '')
+                cursor.execute(changeQuery, (cellChoice, quantityChoice, DBchoice[1]))
+                conn.commit()
+                print('Record changed successfully')
+
             # TODO: Make possible continue to search in octopart even if 
             #       part found in db. For patrial names like 
             #       '84952-4' part of '2-84952-4'

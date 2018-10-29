@@ -66,7 +66,7 @@ def tableprint(noModifydata, cutColoumn, tableName = '', itemize=-1, initCol=0, 
 
 def selection(options, selectionName, cutColoumn = 1, mandatory = False):
     noModifydata = []
-    if len(options[0][0]) == 1:
+    if len(options[0][0]) == 1:        
         for item in options:
             noModifydata.append((item,))
     else:

@@ -53,4 +53,6 @@ colNames = ('Part Number',
             'TC', 
             'Power', 
             'Tolerance', 
-            'Voltage')
+            'Voltage',
+            'Storage Cell',
+            'Storage Quantity')
