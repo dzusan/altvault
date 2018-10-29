@@ -20,7 +20,7 @@ with Altium Designer 18.
 **Copy `config.py.example` to `config.py` for proper operation! And only then
 change settings in file or replace them by command line.**
 
-### A little demo (old version, capture new coming soon...)
+### A little demo
 
 ![A little demo](demo.gif?raw=true "demo.gif")
 
