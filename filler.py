@@ -48,7 +48,7 @@ def spec(mydb, octo):
 
     
 
-def subclass(mydb, octo):
+def subclass(mydb, octo, conn, cursor):
     print('Obtained subclasses: ', end='')
     for i, sc in enumerate(octo['Categories']):
         print(sc, end='')
@@ -120,7 +120,10 @@ def subclass(mydb, octo):
     if 'Electromechanical' in octo['Categories']:
         mydb['Component_Kind'] = 'Electromechanical'
 
-
+    # Finally
+    if not mydb['Case']: # Another way to find 'Case'
+        print('\'Case\' field is not in subclass')
+        findcase(mydb, conn, cursor)
 
     ### MIDDLE LEVEL ###
 

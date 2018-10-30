@@ -53,16 +53,12 @@ def add_rec(conn, cursor, info):
 
     # Fill the fields
     filler.spec(field, info)
-    filler.subclass(field, info)
+    filler.subclass(field, info, conn, cursor)
     if not field['Component_Kind']:
         print('Mandatory field \'Component Kind\' not found')
         field['Component_Kind'] = selection(DBstructure.tables, 'Component Kind', mandatory = True)
 
     # TODO: Fill the fields based on 'Component_Kind' like Comment =Device or =Value
-
-    if not field['Case']: # Another way to find 'Case'
-        print('\'Case\' field is not in subclass')
-        filler.findcase(field, conn, cursor)
 
     # Choose the datasheet
     # It's preferable to call filler.subclass() before it 
