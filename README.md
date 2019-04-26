@@ -4,7 +4,8 @@ Python scripts to servise large DBLib for Altium Designer. DataBase based on
 CERN library and contains about **13000** components.
 
 ### Toolkit
-* Python 3
+* Python 3.6.6
+* Flask 1.0.2
 * [Octopart API](https://octopart.com/api/home) to search and add component
 * [CLI](https://en.wikipedia.org/wiki/Command-line_interface "command-line interface") with tables
 * No OOP (just now)
@@ -20,9 +21,21 @@ with Altium Designer 18.
 **Copy `config.py.example` to `config.py` for proper operation! And only then
 change settings in file or replace them by command line.**
 
+### WEB
+Huge move to Flask has begun. Available now:
+
+* Search in local DB
+* Edit local Storage Cell and Quantity
+
 ### A little demo
 
 ![A little demo](demo.gif?raw=true "demo.gif")
+
+### Requirements (`> pip install`)
+* pyodbc
+* pywin32
+* terminaltables
+* Flask
 
 ### Launch without keys (completed config.py)
 
