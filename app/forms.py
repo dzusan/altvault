@@ -1,13 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, HiddenField, IntegerField
+from wtforms import StringField, SubmitField, HiddenField, IntegerField, RadioField, SelectField
 from wtforms.validators import DataRequired, NumberRange
 from wtforms.widgets.html5 import NumberInput
 
-class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember Me')
-    submit = SubmitField('Sign In')
+from app import selectors
+import DBstructure
 
 class SearchForm(FlaskForm):
     searchField = StringField('Search', validators=[DataRequired()])
@@ -20,3 +17,25 @@ class LocalResultForm(FlaskForm):
     quantity = IntegerField('Quantity', widget=NumberInput(min=0, max=9999),
                              validators=[DataRequired(), NumberRange(min=0, max=9999)])
     update = SubmitField('Update')
+
+class GenForm(FlaskForm):
+    parts = RadioField('UID')
+    authors = RadioField('Author')
+    gen = SubmitField('Generate')
+
+class AddForm(FlaskForm):
+    add = SubmitField('Add')
+
+def gen_add_form():
+    fieldnames = {name.replace(' ', '_'):name for name in DBstructure.colNames}
+    
+    for key, name in fieldnames.items():
+        if key == 'Author':
+            setattr(AddForm, 'Author', SelectField('Author', choices=selectors.author()))
+        else:
+            setattr(AddForm, key, StringField(name))
+    
+    add_form = AddForm()
+    return fieldnames, add_form
+
+

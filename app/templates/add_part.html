@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div>
+    <form action="{{url_for('index')}}" method="post">
+        <table  class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Choice</th>
+                    <th scope="col">Part Number</th>
+                    <th scope="col">Manufacturer</th>
+                    <th scope="col">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for choise, inf in parts %}
+                    <tr>
+                        <td> {{ choise(class='form-control') }} </td>
+                        <td> {{ choise.label }} </td>
+                        {% for col in inf %}
+                            <td> {{ col }} </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="input-group mb-3">
+            <table  class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Choice</th>
+                        <th scope="col">Author</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for choise in gen_form.authors %}
+                        <tr>
+                            <td> {{ choise(class='form-control') }} </td>
+                            <td> {{ choise.label }} </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {{ gen_form.hidden_tag() }}
+        {{ gen_form.gen(class='btn btn-secondary') }}
+    </form>
+
+    <form action="{{url_for('index')}}" method="post">
+        <table  class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Field</th>
+                    <th scope="col">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, name in fieldnames.items() %}
+                    <tr>
+                        <td> {{ name }} </td>
+                        <td> {{ add_form|attr(key)(class='form-control') }} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {{ add_form.hidden_tag() }}
+        {{ add_form.add(class='btn btn-secondary') }}
+    </form>
+</div>
+{% endblock %}
