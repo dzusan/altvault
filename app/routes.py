@@ -5,6 +5,7 @@ from app.forms import *
 from app.update import storage_update
 from app import selectors
 import octopart
+import filler
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -65,6 +66,9 @@ def index():
     if gen_form.parts.data != 'None': # validate_on_submit() don't work !
         flash(gen_form.parts.data)
         flash(gen_form.authors.data)
+        info = octopart.part(gen_form.parts.data)
+        print(filler.fill_all(gen_form.authors.data, info)) 
+
     else:
         flash('Nothing chosen')
 

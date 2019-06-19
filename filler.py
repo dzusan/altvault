@@ -7,9 +7,33 @@ import re
 
 # User
 import config
+import DBstructure
 from markup import *
+from app.db_connector import db_connect, db_disconnect
 
 author = config.default_author
+
+def fill_all(_author, info):
+    # Create dict from coloumns
+    field = {}
+    for col in DBstructure.colNames:
+        field[col.replace(' ', '_')] = None
+
+    # Fill the fields
+    author = _author
+    spec(field, info)
+
+    # Connect DB to search subclass
+    conn, cur = db_connect()
+    subclass(field, info, conn, cur)
+    db_disconnect(conn, cur)
+
+    # if not field['Component_Kind']:
+    #     print('Mandatory field \'Component Kind\' not found')
+    #     field['Component_Kind'] = selection(DBstructure.tables, 'Component Kind', mandatory = True)
+
+    return field
+    
 
 
 def spec(mydb, octo):
