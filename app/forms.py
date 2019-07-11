@@ -26,14 +26,20 @@ class GenForm(FlaskForm):
 class AddForm(FlaskForm):
     add = SubmitField('Add')
 
-def gen_add_form():
+def gen_add_form(data=None):
     fieldnames = {name.replace(' ', '_'):name for name in DBstructure.colNames}
     
     for key, name in fieldnames.items():
         if key == 'Author':
-            setattr(AddForm, 'Author', SelectField('Author', choices=selectors.author()))
+            if data:
+                setattr(AddForm, 'Author', SelectField('Author', choices=selectors.author(), default=data['Author']))
+            else:
+                setattr(AddForm, 'Author', SelectField('Author', choices=selectors.author()))
         else:
-            setattr(AddForm, key, StringField(name))
+            if data:
+                setattr(AddForm, key, StringField(name, default=data[key]))
+            else:
+                setattr(AddForm, key, StringField(name))
     
     add_form = AddForm()
     return fieldnames, add_form

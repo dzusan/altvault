@@ -13,14 +13,15 @@ from app.db_connector import db_connect, db_disconnect
 
 author = config.default_author
 
-def fill_all(_author, info):
+def fill_all(info, form_author=config.default_author):
+    global author
     # Create dict from coloumns
     field = {}
     for col in DBstructure.colNames:
         field[col.replace(' ', '_')] = None
 
     # Fill the fields
-    author = _author
+    author = form_author
     spec(field, info)
 
     # Connect DB to search subclass
