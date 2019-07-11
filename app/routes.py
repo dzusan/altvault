@@ -2,7 +2,7 @@
 from flask import render_template, flash, redirect, url_for, session
 from app import app, search
 from app.forms import *
-from app.update import storage_update
+from app.update import storage_update, add_part
 from app import selectors
 import octopart
 import filler
@@ -58,6 +58,10 @@ def index():
                                 searchForm=searchForm)
     else:
         flash('Nothing chosen')
+
+    add_form = AddForm()
+    if add_form.validate_on_submit():
+        flash(add_part(add_form.data))
 
     return render_template('index.html', searchForm=searchForm)
 
