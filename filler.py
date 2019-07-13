@@ -554,19 +554,23 @@ def ds(mydb):
 ILLEGALS = ('\\', '/', ':', '*', '?', '\'', '\"', '<', '>', '|', '.', ',')
 
 def s_space(s):
-    for sym in ILLEGALS:
-        s = s.replace(sym, ' ')
+    if s:
+        for sym in ILLEGALS:
+            s = s.replace(sym, ' ')
     return s
 
 def s_underscore(s):
-    i = list(ILLEGALS)
-    i.append(' ')
-    for sym in i:
-        s = s.replace(sym, '_')
+    if s:
+        i = list(ILLEGALS)
+        i.append(' ')
+        for sym in i:
+            s = s.replace(sym, '_')
     return s
 
 def s_cut(s):
-    for sym in ILLEGALS:
-        pos = s.find(sym)
-        if pos != -1:
-            return s[:pos].rstrip()
+    if s:
+        for sym in ILLEGALS:
+            pos = s.find(sym)
+            if pos != -1:
+                return s[:pos].rstrip()
+    return s
