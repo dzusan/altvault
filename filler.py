@@ -29,6 +29,9 @@ def fill_all(info, form_author=config.default_author):
     subclass(field, info, conn, cur)
     db_disconnect(conn, cur)
 
+    print('BBB     ', field)
+    # print('CCC     ', s_underscore(s_cut(mydb['Manufacturer'])))
+
     # Generate datasheet path
     ds(field)
 
@@ -114,11 +117,11 @@ def subclass(mydb, octo, conn, cursor):
     
     if ('Connectors' in octo['Categories'] or
         'Connectors ' in octo['Categories']): # Yeah, it's weird, but in Octopart 'Connectors ' can be with whitespase
-        mydb['Part_Number'        ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
-        mydb['Footprint_Ref'      ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
-        mydb['Footprint'          ] = mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
+        mydb['Table'              ] = s_underscore(s_cut(mydb['Manufacturer']))
+        mydb['Part_Number'        ] = mydb['Table'] + '_' + octo['Part Number']
+        mydb['Footprint_Ref'      ] = mydb['Part_Number']
+        mydb['Footprint'          ] = mydb['Part_Number']
         mydb['Component_Kind'     ] = 'Electromechanical'
-        mydb['Table'              ] = mydb['Manufacturer']
         mydb['PackageDescription' ] = octo['Part Description']
 
         mydb['Comment'] = '=Value'
@@ -537,12 +540,33 @@ def ds(mydb):
         os.makedirs(path)
     
     filename = mydb['Part_Number']
-    illegals = ('\\', '/', ':', '*', '?', '\'', '\"', '<', '>', '|', '.', ',')
-    for sym in illegals:
-        filename = filename.replace(sym, ' ')
+    # illegals = ('\\', '/', ':', '*', '?', '\'', '\"', '<', '>', '|', '.', ',')
+    # for sym in illegals:
+    #     filename = filename.replace(sym, ' ')
 
-    path += '\\' + filename + '.pdf'
+
+    path += '\\' + s_space(filename) + '.pdf'
 
     mydb['HelpURL'] = path
 
-    
+
+### Service ###
+ILLEGALS = ('\\', '/', ':', '*', '?', '\'', '\"', '<', '>', '|', '.', ',')
+
+def s_space(s):
+    for sym in ILLEGALS:
+        s = s.replace(sym, ' ')
+    return s
+
+def s_underscore(s):
+    i = list(ILLEGALS)
+    i.append(' ')
+    for sym in i:
+        s = s.replace(sym, '_')
+    return s
+
+def s_cut(s):
+    for sym in ILLEGALS:
+        pos = s.find(sym)
+        if pos != -1:
+            return s[:pos].rstrip()
