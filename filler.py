@@ -29,6 +29,9 @@ def fill_all(info, form_author=config.default_author):
     subclass(field, info, conn, cur)
     db_disconnect(conn, cur)
 
+    # Generate datasheet path
+    ds(field)
+
     # if not field['Component_Kind']:
     #     print('Mandatory field \'Component Kind\' not found')
     #     field['Component_Kind'] = selection(DBstructure.tables, 'Component Kind', mandatory = True)
@@ -68,7 +71,7 @@ def spec(mydb, octo):
     mydb['Footprint_Path'] = author + '\\PcbLib\\' + octo['Part Number'] + '.PcbLib'
     
     # ??? fields
-    # mydb['Component_Kind'] = 'Standard'
+    mydb['Component_Kind'] = 'Semiconductors' # TODO: Add mandatory choice to form!
     mydb['Component_Type'] = 'Standard'
 
     
@@ -519,5 +522,27 @@ def datasheet(mydb, octo):
             mydb['HelpURL'] = path
     else:
         print('Datasheets not found')
-    
 
+
+def ds(mydb):
+    print(mydb['Component_Kind'])
+    path = 'C:\\Datasheets\\' + mydb['Component_Kind'] + '\\'
+
+    if mydb['Table']:
+        path += mydb['Table']
+    else:
+        path += 'Unsorted'
+
+    if not os.path.exists(path):
+        os.makedirs(path)
+    
+    filename = mydb['Part_Number']
+    illegals = ('\\', '/', ':', '*', '?', '\'', '\"', '<', '>', '|', '.', ',')
+    for sym in illegals:
+        filename = filename.replace(sym, ' ')
+
+    path += '\\' + filename + '.pdf'
+
+    mydb['HelpURL'] = path
+
+    

@@ -49,6 +49,26 @@
             </table>
         </div>
 
+        <div class="input-group mb-3">
+            <table  class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Choice</th>
+                        <th scope="col">Datasheet</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for field in gen_form.datasheets %}
+                    <tr>
+                        <td> {{ field(class='form-control') }} </td>
+                        <td> <a href="{{ field.data }}"> {{ field.label }} </a> </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
         {{ gen_form.hidden_tag() }}
         {{ gen_form.gen(class='btn btn-secondary') }}
     </form>
@@ -62,11 +82,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for key, name in fieldnames.items() %}
-                    <tr>
-                        <td> {{ name }} </td>
-                        <td> {{ add_form|attr(key)(class='form-control') }} </td>
-                    </tr>
+                {% for field in add_form %}
+                    {% if field.description == 'Generated' %}
+                        <tr>
+                            <td> {{ field.label }} </td>
+                            <td> {{ field(class='form-control') }} </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>

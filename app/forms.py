@@ -21,9 +21,11 @@ class LocalResultForm(FlaskForm):
 class GenForm(FlaskForm):
     parts = RadioField('UID')
     authors = RadioField('Author')
+    datasheets = RadioField('Datasheet')
     gen = SubmitField('Generate')
 
 class AddForm(FlaskForm):
+    datasheet_url = HiddenField('Datasheet URL')
     add = SubmitField('Add')
 
 def gen_add_form(data=None):
@@ -32,16 +34,16 @@ def gen_add_form(data=None):
     for key, name in fieldnames.items():
         if key == 'Author':
             if data:
-                setattr(AddForm, 'Author', SelectField('Author', choices=selectors.author(), default=data['Author']))
+                setattr(AddForm, 'Author', SelectField('Author', choices=selectors.author(), default=data['Author'], description='Generated'))
             else:
-                setattr(AddForm, 'Author', SelectField('Author', choices=selectors.author()))
+                setattr(AddForm, 'Author', SelectField('Author', choices=selectors.author(), description='Generated'))
         else:
             if data:
-                setattr(AddForm, key, StringField(name, default=data[key]))
+                setattr(AddForm, key, StringField(name, default=data[key], description='Generated'))
             else:
-                setattr(AddForm, key, StringField(name))
+                setattr(AddForm, key, StringField(name, description='Generated'))
     
     add_form = AddForm()
-    return fieldnames, add_form
+    return add_form
 
 

@@ -94,7 +94,8 @@ def part(uid):
     params['Datasheets'] = []
     for option in item['datasheets']:
         try:
-            params['Datasheets'].append((option['attribution']['sources'][0]['name'], option['url']))
+            # params['Datasheets'].append((option['attribution']['sources'][0]['name'], option['url']))
+            params['Datasheets'].append((option['url'], option['attribution']['sources'][0]['name']))
         except:
             pass
     params['Datasheets'] = tuple(params['Datasheets'])

@@ -32,11 +32,10 @@ def index():
             results = octopart.search(keyword) # Octopart request 1: search by keyword
             init = create_part_init(results=results)
             if init:
-                gen_form, info, fieldnames, add_form = init
+                gen_form, info, add_form = init
                 return render_template('add_part.html',
                                         parts=zip(gen_form.parts, info),
                                         gen_form=gen_form,
-                                        fieldnames=fieldnames,
                                         add_form=add_form,
                                         searchForm=searchForm)
 
@@ -49,11 +48,10 @@ def index():
 
     gen_form = GenForm()
     if gen_form.parts.data != 'None': # validate_on_submit() don't work !
-        gen_form, info, fieldnames, add_form = create_part_init(part=gen_form.parts.data, author=gen_form.authors.data)
+        gen_form, info, add_form = create_part_init(part=gen_form.parts.data, author=gen_form.authors.data, datasheet_url=gen_form.datasheets.data)
         return render_template('add_part.html',
                                 parts=zip(gen_form.parts, info),
                                 gen_form=gen_form,
-                                fieldnames=fieldnames,
                                 add_form=add_form,
                                 searchForm=searchForm)
     else:
@@ -66,7 +64,7 @@ def index():
     return render_template('index.html', searchForm=searchForm)
 
 
-def create_part_init(results=None, part=None, author=None):
+def create_part_init(results=None, part=None, author=None, datasheet_url=None):
     if results:
         session['results'] = results
         resnum = results[0]
@@ -89,23 +87,37 @@ def create_part_init(results=None, part=None, author=None):
     parts = []
     gen_form = GenForm()
 
+    ### Generate parts table ###
+
     for r in results:
         parts.append((r['uid'], r['part_number']))
-
+    
     gen_form.parts.choices = parts
     if part:
         spec = octopart.part(part) # Octopart request 2: obtain part spec
         gen_form.parts.default = part
-        gen_form.process()
 
+    ### Generate authors table ###
     gen_form.authors.choices = selectors.author()
     if author:
         data = filler.fill_all(spec, form_author=author)
         gen_form.authors.default = author
-        gen_form.process()
     else:
-        data = filler.fill_all(spec)    
-    
-    fieldnames, add_form = gen_add_form(data=data)
+        data = filler.fill_all(spec)
 
-    return gen_form, results, fieldnames, add_form
+    ### Generate datasheets table ###
+    if spec['Datasheets']:
+        gen_form.datasheets.choices = spec['Datasheets']
+        if not datasheet_url:
+            datasheet_url = spec['Datasheets'][0][0]
+
+        gen_form.datasheets.default = datasheet_url
+    
+    # Refresh form after adding defaults
+    gen_form.process()
+
+    # Fill the part specs
+    add_form = gen_add_form(data=data)
+    add_form.datasheet_url.data = datasheet_url
+
+    return gen_form, results, add_form
