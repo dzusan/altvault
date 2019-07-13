@@ -13,13 +13,18 @@
                 </tr>
             </thead>
             <tbody>
-                {% for choise, inf in parts %}
+                {% for choise, r in parts %}
                     <tr>
                         <td> {{ choise(class='form-control') }} </td>
-                        <td> {{ choise.label }} </td>
-                        {% for col in inf %}
-                            <td> {{ col }} </td>
-                        {% endfor %}
+                        <td> <a href="{{r['octopart_url']}}"> {{ choise.label }} </a> </td>
+                        
+                        {% if r['manufacturer_url'] %}
+                            <td> <a href="{{r['manufacturer_url']}}"> {{ r['manufacturer'] }} </a> </td>
+                        {% else %}
+                            <td> {{ r['manufacturer'] }} </td>
+                        {% endif %}
+
+                        <td> {{ r['description'] }} </td>
                     </tr>
                 {% endfor %}
             </tbody>

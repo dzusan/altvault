@@ -41,10 +41,22 @@ def search(keyword):
     data = urllib.request.urlopen(url).read()
     search_response = json.loads(data)
 
-    variants = [('Found', search_response['hits'], '', '')]
+    # variants = [('Found', search_response['hits'], '', '')]
+    variants = [search_response['hits']]
 
     for result in search_response['results']:
-        variants.append((result['item']['mpn'], result['item']['manufacturer']['name'], result['snippet'], result['item']['uid']))
+        # variants.append((result['item']['mpn'], result['item']['manufacturer']['name'], result['snippet'], result['item']['uid']))
+
+        r = {
+            'uid'             :result['item'   ]['uid'],
+            'part_number'     :result['item'   ]['mpn'],
+            'octopart_url'    :result['item'   ]['octopart_url'],
+            'manufacturer'    :result['item'   ]['manufacturer']['name'],
+            'manufacturer_url':result['item'   ]['manufacturer']['homepage_url'],
+            'description'     :result['snippet']
+        }
+
+        variants.append(r)
 
     return variants
 

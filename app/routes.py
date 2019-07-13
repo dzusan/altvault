@@ -29,7 +29,7 @@ def index():
                                     searchForm=searchForm)
         else:
             flash('Nothing found in local DB')
-            results = octopart.search(keyword)
+            results = octopart.search(keyword) # Octopart request 1: search by keyword
             init = create_part_init(results=results)
             if init:
                 gen_form, info, fieldnames, add_form = init
@@ -69,26 +69,28 @@ def index():
 def create_part_init(results=None, part=None, author=None):
     if results:
         session['results'] = results
-        resnum = results[0][1]
+        resnum = results[0]
         if resnum == 0:
             flash('Nothing found in octopart')
             return
         else:
-            part = results[1][3]
+            part = results[1]['uid']
     else:
         results = session['results']
-        resnum = results[0][1]
+        resnum = results[0]
     
-    flash('{} results found in octopart. First 9 below.'.format(resnum))
+    msg = '{} results found in octopart'.format(resnum)
+    if resnum > 9:
+        msg += '. First 9 below.'
+
+    flash(msg)
+
     results = results[1:]
+    parts = []
     gen_form = GenForm()
 
-    info = []
-    parts = []
-
-    for res in results:
-        info.append(res[1:3])
-        parts.append((res[3], res[0]))
+    for r in results:
+        parts.append((r['uid'], r['part_number']))
 
     gen_form.parts.choices = parts
     if part:
@@ -106,4 +108,4 @@ def create_part_init(results=None, part=None, author=None):
     
     fieldnames, add_form = gen_add_form(data=data)
 
-    return gen_form, info, fieldnames, add_form
+    return gen_form, results, fieldnames, add_form
