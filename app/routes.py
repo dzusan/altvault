@@ -32,9 +32,10 @@ def index():
             results = octopart.search(keyword) # Octopart request 1: search by keyword
             init = create_part_init(results=results)
             if init:
-                gen_form, info, add_form = init
+                gen_form, info, fp_descr, add_form = init
                 return render_template('add_part.html',
                                         parts=zip(gen_form.parts, info),
+                                        fp_items=zip(gen_form.footprints, fp_descr),
                                         gen_form=gen_form,
                                         add_form=add_form,
                                         searchForm=searchForm)
@@ -48,9 +49,13 @@ def index():
 
     gen_form = GenForm()
     if gen_form.parts.data != 'None': # validate_on_submit() don't work !
-        gen_form, info, add_form = create_part_init(part=gen_form.parts.data, author=gen_form.authors.data, datasheet_url=gen_form.datasheets.data)
+        gen_form, info, fp_descr, add_form = create_part_init(part=gen_form.parts.data, 
+                                                              author=gen_form.authors.data, 
+                                                              datasheet_url=gen_form.datasheets.data,
+                                                              fp_sel=gen_form.footprints.data)
         return render_template('add_part.html',
                                 parts=zip(gen_form.parts, info),
+                                fp_items=zip(gen_form.footprints, fp_descr),
                                 gen_form=gen_form,
                                 add_form=add_form,
                                 searchForm=searchForm)
@@ -64,7 +69,7 @@ def index():
     return render_template('index.html', searchForm=searchForm)
 
 
-def create_part_init(results=None, part=None, author=None, datasheet_url=None):
+def create_part_init(results=None, part=None, author=None, datasheet_url=None, fp_sel='0'):
     if results:
         session['results'] = results
         resnum = results[0]
@@ -100,10 +105,10 @@ def create_part_init(results=None, part=None, author=None, datasheet_url=None):
     ### Generate authors table ###
     gen_form.authors.choices = selectors.author()
     if author:
-        data = filler.fill_all(spec, form_author=author)
+        data, fp_list = filler.fill_all(spec, form_author=author, fp_sel=fp_sel)
         gen_form.authors.default = author
     else:
-        data = filler.fill_all(spec)
+        data, fp_list = filler.fill_all(spec, fp_sel=fp_sel)
 
     ### Generate datasheets table ###
     if spec['Datasheets']:
@@ -113,6 +118,11 @@ def create_part_init(results=None, part=None, author=None, datasheet_url=None):
 
         gen_form.datasheets.default = datasheet_url
     
+    ### Generate footprints table ###
+    gen_form.footprints.choices = [(idx, item[0]) for idx, item in enumerate(fp_list)]
+    fp_descr = [item[1] for item in fp_list]
+    gen_form.footprints.default = fp_sel
+    
     # Refresh form after adding defaults
     gen_form.process()
 
@@ -120,4 +130,4 @@ def create_part_init(results=None, part=None, author=None, datasheet_url=None):
     add_form = gen_add_form(data=data)
     add_form.datasheet_url.data = datasheet_url
 
-    return gen_form, results, add_form
+    return gen_form, results, fp_descr, add_form

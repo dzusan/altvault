@@ -22,6 +22,7 @@ class GenForm(FlaskForm):
     parts = RadioField('UID')
     authors = RadioField('Author')
     datasheets = RadioField('Datasheet')
+    footprints = RadioField('Footprint')
     gen = SubmitField('Generate')
 
 class AddForm(FlaskForm):

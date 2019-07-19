@@ -2,6 +2,8 @@
     <head>
       <title>lenkov.work</title>
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/darkly/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </head>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="{{ url_for('index') }}">Home</a>        
@@ -14,16 +16,16 @@
         </div>
     </nav>
     <body>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul class="list-group list-group-flush">
-            {% for message in messages %}
-            <li class="list-group-item">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-warning" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
         {% endwith %}
+
         {% block content %}{% endblock %}
     </body>
 </html>

@@ -13,7 +13,7 @@ from app.db_connector import db_connect, db_disconnect
 
 author = config.default_author
 
-def fill_all(info, form_author=config.default_author):
+def fill_all(info, form_author=config.default_author, fp_sel='0'):
     global author
     # Create dict from coloumns
     field = {}
@@ -24,13 +24,11 @@ def fill_all(info, form_author=config.default_author):
     author = form_author
     spec(field, info)
 
-    # Connect DB to search subclass
+    # Connect DB
     conn, cur = db_connect()
     subclass(field, info, conn, cur)
+    fp_list = fp(field, conn, cur, fp_sel)
     db_disconnect(conn, cur)
-
-    print('BBB     ', field)
-    # print('CCC     ', s_underscore(s_cut(mydb['Manufacturer'])))
 
     # Generate datasheet path
     ds(field)
@@ -39,7 +37,7 @@ def fill_all(info, form_author=config.default_author):
     #     print('Mandatory field \'Component Kind\' not found')
     #     field['Component_Kind'] = selection(DBstructure.tables, 'Component Kind', mandatory = True)
 
-    return field
+    return field, fp_list
     
 
 
@@ -370,7 +368,7 @@ def subclass(mydb, octo, conn, cursor):
         mydb['Library_Ref'] = 'Capacitor - polarized'
 
     if 'Amplifiers - Op Amps, Buffer, Instrumentation' in octo['Categories']:
-        mydb['Library_Path'] = 'SchLib\\Operational Amplifiers.SchLib'
+        mydb['Library_Path'] = 'CERN\\SchLib\\Operational Amplifiers.SchLib'
         mydb['Table'] = 'Operational Amplifiers'
         if '<Number of Channels>' in octo.keys():
             if octo['<Number of Channels>'] == '1':
@@ -528,7 +526,6 @@ def datasheet(mydb, octo):
 
 
 def ds(mydb):
-    print(mydb['Component_Kind'])
     path = 'C:\\Datasheets\\' + mydb['Component_Kind'] + '\\'
 
     if mydb['Table']:
@@ -540,15 +537,63 @@ def ds(mydb):
         os.makedirs(path)
     
     filename = mydb['Part_Number']
-    # illegals = ('\\', '/', ':', '*', '?', '\'', '\"', '<', '>', '|', '.', ',')
-    # for sym in illegals:
-    #     filename = filename.replace(sym, ' ')
 
 
     path += '\\' + s_space(filename) + '.pdf'
 
     mydb['HelpURL'] = path
 
+
+def fp(mydb, conn, cursor, choice='0'):
+    print('Matching \'Case\' field with footprint ...')
+
+    # TODO: Search mydb['Case'] not only in 'Case' field in DB.
+    # For example FUSC_BOURNS_SF-1206S in CERN\PcbLib\Fuses.PcbLib
+    # but not contains any reflection in 'Case' coloumn
+    # CHECK: FUS1206_BOURNS_SF-1206S500-2
+
+    query = '''(SELECT `Footprint Ref`, MAX(`PackageDescription`), MAX(`Footprint Path`)
+                FROM Semiconductors
+                WHERE `Case` LIKE ?
+                GROUP BY `Footprint Ref`)
+              UNION
+               (SELECT `Footprint Ref`, MAX(`PackageDescription`), MAX(`Footprint Path`)
+                FROM Passives
+                WHERE `Case` LIKE ?
+                GROUP BY `Footprint Ref`)
+              UNION
+               (SELECT `Footprint Ref`, MAX(`PackageDescription`), MAX(`Footprint Path`)
+                FROM Electromechanical
+                WHERE `Case` LIKE ?
+                GROUP BY `Footprint Ref`)'''               
+    # MAX() functions use only as workaround for MS Access query restrictions.
+    # With SQLite this is no effect.
+    
+    if mydb['Case']:
+        findkey = ('%' + mydb['Case'] + '%', '%' + mydb['Case'] + '%', '%' + mydb['Case'] + '%')
+        cursor.execute(query, findkey)
+        options = cursor.fetchall()
+        if options:
+            if options[0][0]: # Workaround when MS Access give [(None, None, None)] if keyword not found
+                choice_item = options[int(choice)]
+                if choice_item:
+                    mydb['Footprint'] = choice_item[0]
+                    mydb['Footprint_Ref'] = choice_item[0]
+                    mydb['PackageDescription'] = choice_item[1]
+                    mydb['Footprint_Path'] = choice_item[2]                
+                else:
+                    print('Footprint index error')
+                
+                return [i[:2] for i in options]
+
+            else:
+               print('Not found such package in DB Lib') 
+        else:
+            print('Not found such package in DB Lib')
+    else:
+        print('\'Case\' field is empty')
+
+    return []
 
 ### Service ###
 ILLEGALS = ('\\', '/', ':', '*', '?', '\'', '\"', '<', '>', '|', '.', ',')

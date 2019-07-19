@@ -1,76 +1,130 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div>
     <form action="{{url_for('index')}}" method="post">
-        <table  class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">Choice</th>
-                    <th scope="col">Part Number</th>
-                    <th scope="col">Manufacturer</th>
-                    <th scope="col">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for choise, r in parts %}
-                    <tr>
-                        <td> {{ choise(class='form-control') }} </td>
-                        <td> <a href="{{r['octopart_url']}}"> {{ choise.label }} </a> </td>
-                        
-                        {% if r['manufacturer_url'] %}
-                            <td> <a href="{{r['manufacturer_url']}}"> {{ r['manufacturer'] }} </a> </td>
-                        {% else %}
-                            <td> {{ r['manufacturer'] }} </td>
-                        {% endif %}
 
-                        <td> {{ r['description'] }} </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="input-group mb-3">
+        <!-- PARTS FORM -->
+            <div class="card-header"><h4>Choose part</h4></div>
             <table  class="table table-striped">
                 <thead>
                     <tr>
                         <th scope="col">Choice</th>
-                        <th scope="col">Author</th>
+                        <th scope="col">Part Number</th>
+                        <th scope="col">Manufacturer</th>
+                        <th scope="col">Description</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for choise in gen_form.authors %}
+                    {% for choise, r in parts %}
                         <tr>
                             <td> {{ choise(class='form-control') }} </td>
-                            <td> {{ choise.label }} </td>
+                            <td> <a href="{{r['octopart_url']}}"> {{ choise.label }} </a> </td>
+                            
+                            {% if r['manufacturer_url'] %}
+                                <td> <a href="{{r['manufacturer_url']}}"> {{ r['manufacturer'] }} </a> </td>
+                            {% else %}
+                                <td> {{ r['manufacturer'] }} </td>
+                            {% endif %}
+
+                            <td> {{ r['description'] }} </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
 
-        <div class="input-group mb-3">
-            <table  class="table table-striped">
-                <thead>
+        <div class="row">
+                <div class="col-sm-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ gen_form.datasheets.label }}</h5>
+                      {% for field in gen_form.datasheets %}
+                      {% if loop.index <= 3 %}
+                          <div class="container">
+                              <div class="row">
+                                  <div class="col-sm-6">
+                                      <p>{{ field(class='form-control') }}</p>
+                                  </div>
+                                  <div class="col-sm-6">
+                                      <p><a href="{{ field.data }}"> {{ field.label }} </a></p>
+                                  </div>
+                              </div>
+                          </div>
+                      {% endif %}
+                  {% endfor %}
+                  <div class="panel-group">
+                        <div class="panel panel-default">
+                            <div class="card-header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse1">
+                                    Show more
+                                </button>
+                            </h5>
+                            </div>
+                            <div id="collapse1" class="panel-collapse collapse">
+                                {% for field in gen_form.datasheets %}
+                                    {% if loop.index > 3 %}
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <p>{{ field(class='form-control') }}</p>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <p><a href="{{ field.data }}"> {{ field.label }} </a></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ gen_form.authors.label }}</h5>
+                      {% for choise in gen_form.authors %}
+                          <div class="container">
+                              <div class="row">
+                                  <div class="col-sm-6">
+                                      <p>{{ choise(class='form-control') }}</p>
+                                  </div>
+                                  <div class="col-sm-6">
+                                      <p>{{ choise.label }}</p>
+                                  </div>
+                              </div>
+                          </div>
+                        {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+        
+        <!-- FOOTPRINTS FORM -->
+        <div class="card-header"><h4>Choose footprint</h4></div>
+        <table  class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Choice</th>
+                    <th scope="col">Footprint</th>
+                    <th scope="col">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for choise, descr in fp_items %}
                     <tr>
-                        <th scope="col">Choice</th>
-                        <th scope="col">Datasheet</th>
+                        <td> {{ choise(class='form-control') }} </td>
+                        <td> {{ choise.label }} </td>
+                        <td> {{ descr }} </td>
                     </tr>
-                </thead>
-                <tbody>
-
-                    {% for field in gen_form.datasheets %}
-                    <tr>
-                        <td> {{ field(class='form-control') }} </td>
-                        <td> <a href="{{ field.data }}"> {{ field.label }} </a> </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                {% endfor %}
+            </tbody>
+        </table>        
 
         {{ gen_form.hidden_tag() }}
-        {{ gen_form.gen(class='btn btn-secondary') }}
+        {{ gen_form.gen(class='btn btn-primary btn-lg btn-block') }}
     </form>
 
     <form action="{{url_for('index')}}" method="post">
@@ -94,7 +148,7 @@
         </table>
 
         {{ add_form.hidden_tag() }}
-        {{ add_form.add(class='btn btn-secondary') }}
+        {{ add_form.add(class='btn btn-primary btn-lg btn-block') }}
     </form>
 </div>
 {% endblock %}
