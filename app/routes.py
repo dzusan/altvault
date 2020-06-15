@@ -48,7 +48,8 @@ def index():
         flash('Nothing changed')
 
     gen_form = GenForm()
-    if gen_form.parts.data != 'None': # validate_on_submit() don't work !
+    if gen_form.parts.data is not None: # validate_on_submit() don't work !
+    
         gen_form, info, fp_descr, add_form = create_part_init(part=gen_form.parts.data, 
                                                               author=gen_form.authors.data, 
                                                               datasheet_url=gen_form.datasheets.data,

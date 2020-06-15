@@ -1,3 +1,8 @@
+import os
+
+class Config(object):
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+
 apikey = '12345678'
 DB_path = 'D:\\full\\path\\to\\altvault.accdb'
 prefill_key = 'STM32'
