@@ -296,10 +296,11 @@ def subclass(mydb, octo, conn, cursor):
         mydb['Pin_Count'] = '2' if not mydb['Pin_Count'] else mydb['Pin_Count']
 
     if 'Fuses' in octo['Categories']:
-        if re.search('[a-zA-Z]', mydb['Case']):
-            mydb['Part_Number'] = 'FUSR' + '_'
-        else:
+        if fuse_case(mydb['Case']):
             mydb['Part_Number'] = 'FUS' + mydb['Case'] + '_'
+        else:
+            mydb['Part_Number'] = 'FUSR' + '_'
+
         mydb['Part_Number'] += mydb['Manufacturer'].replace(' ', '_') + '_' + octo['Part Number']
         mydb['Table'] = 'Fuses'
         mydb['Value']   = octo['<Current Rating>'].replace(' ', '') if '<Current Rating>' in octo.keys() else None
@@ -619,3 +620,9 @@ def s_cut(s):
             if pos != -1:
                 return s[:pos].rstrip()
     return s
+
+def fuse_case(case):
+    if case:
+        if not re.search('[a-zA-Z]', case):
+            return True
+    return False
